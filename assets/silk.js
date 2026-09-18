@@ -17,7 +17,7 @@
   const fs = `
     precision highp float;
     uniform vec2 uRes;
-    uniform float uTime;
+    uniform float uFlow;      // accumulated flow (integrated in JS, never jumps)
     uniform vec2 uMouse;      // 0..1, y up
     uniform float uPress;     // pointer presence 0..1
     uniform float uBeat;      // heartbeat 0..1
@@ -50,21 +50,24 @@
       // along the fold direction makes long, smooth folds instead of smoke.
       vec2 q = mat2(0.86, 0.5, -0.5, 0.86) * p;
       q *= vec2(0.38, 1.05);
-      float t = uTime * (0.05 + uBeat * 0.015);
+      float t = uFlow;
+      // The fabric streams along its folds (advection), while the folds
+      // themselves change shape much more slowly: that reads as flow.
+      vec2 s = q + vec2(t * 1.1, 0.0);
 
       // Gentle domain warping: enough to bend the folds, not enough to swirl.
-      vec2 w1 = vec2(fbm(q * 0.9 + vec2(0.0, t)), fbm(q * 0.9 + vec2(5.2, 1.3) - t));
-      vec2 w2 = vec2(fbm(q + 1.1 * w1 + vec2(1.7, 9.2) + t * 0.7),
-                     fbm(q + 1.1 * w1 + vec2(8.3, 2.8) - t * 0.5));
-      float f = fbm(q + 1.2 * w2);
+      vec2 w1 = vec2(fbm(s * 0.9 + vec2(0.0, t * 0.25)), fbm(s * 0.9 + vec2(5.2, 1.3) - t * 0.25));
+      vec2 w2 = vec2(fbm(s + 1.1 * w1 + vec2(1.7, 9.2) + t * 0.18),
+                     fbm(s + 1.1 * w1 + vec2(8.3, 2.8) - t * 0.14));
+      float f = fbm(s + 1.2 * w2);
 
       // Silk folds: broad bands bent by the warp. The slope of the band tells
       // where the fabric faces the light, which gives soft sheen, not hard lines.
-      float phase = q.y * 3.3 + f * 4.2 + w2.x * 1.6 - t * 2.2;
+      float phase = q.y * 3.3 + f * 4.2 + w2.x * 1.6 - t * 0.5;
       float bands = sin(phase);
       float facing = 0.5 + 0.5 * cos(phase - 0.9);
       float sheen = pow(facing, 4.0) * smoothstep(0.28, 0.7, f);
-      float glint = pow(facing, 9.0) * smoothstep(0.36, 0.72, f);
+      float glint = pow(facing, 20.0) * smoothstep(0.42, 0.74, f);
 
       vec3 deep  = vec3(0.06, 0.0, 0.01);
       vec3 wine  = vec3(0.28, 0.0, 0.03);
@@ -74,11 +77,14 @@
       col = mix(col, red, smoothstep(-0.3, 0.95, bands) * 0.9);
       col *= 0.55 + 0.45 * smoothstep(-1.0, 0.2, bands);   // shadowed valleys between folds
       col = mix(col, flame, sheen * 0.85);
-      // Pale light catching the silk, stronger towards the right like the reference.
-      col += vec3(1.0, 0.86, 0.84) * glint * smoothstep(0.1, 1.0, uv.x) * (0.85 + 0.3 * uBeat);
+      // White light catching the silk: a soft warm bloom, then a bright core on the
+      // crests. Stronger towards the right, like the reference.
+      float side = smoothstep(0.05, 0.95, uv.x);
+      col += vec3(1.0, 0.4, 0.34) * pow(facing, 8.0) * smoothstep(0.35, 0.72, f) * 0.22 * side;
+      col = mix(col, vec3(1.0, 0.95, 0.94), clamp(glint * 1.6 * side, 0.0, 0.88));
 
       // The heartbeat warms the whole surface a touch.
-      col *= 0.92 + 0.12 * uBeat;
+      col *= 0.98 + 0.05 * uBeat;
       // Keep the left side darker so the copy stays readable.
       col *= mix(0.68, 1.0, smoothstep(0.0, 0.7, uv.x));
       gl_FragColor = vec4(col, 1.0);
@@ -97,7 +103,7 @@
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = (n) => gl.getUniformLocation(prog, n);
-  const uRes = U("uRes"), uTime = U("uTime"), uMouse = U("uMouse"), uPress = U("uPress"), uBeat = U("uBeat");
+  const uRes = U("uRes"), uFlow = U("uFlow"), uMouse = U("uMouse"), uPress = U("uPress"), uBeat = U("uBeat");
 
   const SCALE = 0.5;   // render at half resolution; CSS scales it up smoothly
   const fit = () => {
@@ -119,18 +125,21 @@
   }, { passive: true });
 
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let visible = true, raf = 0, last = 0, time = 12;
+  let visible = true, raf = 0, last = 0, flow = 12 * 0.05, beatS = 0;
   const frame = (now) => {
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
     last = now;
-    time += dt;
+    // Flow is integrated, so the heartbeat can nudge its speed without any jump.
+    const beat = typeof heartbeat === "function" && !still ? heartbeat() : 0;
+    beatS += (beat - beatS) * 0.12;
+    flow += dt * (0.05 + beatS * 0.012);
     mouse.x += (mouse.tx - mouse.x) * 0.06;
     mouse.y += (mouse.ty - mouse.y) * 0.06;
     mouse.press += ((mouse.in ? 1 : 0) - mouse.press) * 0.05;
-    gl.uniform1f(uTime, time);
+    gl.uniform1f(uFlow, flow);
     gl.uniform2f(uMouse, mouse.x, mouse.y);
     gl.uniform1f(uPress, mouse.press);
-    gl.uniform1f(uBeat, typeof heartbeat === "function" && !still ? heartbeat() : 0);
+    gl.uniform1f(uBeat, beatS);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = visible && !still ? requestAnimationFrame(frame) : 0;
   };
