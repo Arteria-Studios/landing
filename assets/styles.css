@@ -920,6 +920,8 @@ a:hover .roll span { transform: translateY(-100%); }
 .field.is-missing legend,
 .field.is-missing > span { color: #ff6b5c; }
 .hp { position: absolute; left: -9999px; }
+/* When a field gets focus (e.g. after a validation error), keep it clear of the fixed nav. */
+.contact-form :is(input, textarea, .chip, .seg span) { scroll-margin: calc(var(--nav-h) + 40px) 0 24px; }
 
 .form-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .pill--accent {
@@ -1266,6 +1268,8 @@ main { position: relative; }
   .brands { padding: 100px 0 90px; }
   .foot-grid { grid-template-columns: 1fr 1fr; row-gap: 28px; }
   .contact { grid-template-columns: 1fr; min-height: 0; align-items: start; }
+  /* Bigger touch targets for the chips (~42px tall). */
+  .chip, .seg span { padding: 11px 15px; font-size: 15px; }
   .field-row { grid-template-columns: 1fr; }
   .wk { --wk-side: var(--pad); --wk-img-w: 42vw; }
   .wk-names { left: calc(var(--wk-side) + 34px); }
