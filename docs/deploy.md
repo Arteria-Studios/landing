@@ -10,7 +10,9 @@ so pick one of the options below. GitHub Pages can only host the static frontend
 2. Storage → create a **Postgres** (Neon) database and a **Blob** store, link both.
    `DATABASE_URL`, `DIRECT_URL`, `BLOB_STORE_ID` are set automatically.
 3. Add the variables from [Secrets](#secrets) that are not set yet.
-4. Deploy. The `vercel-build` script runs `prisma migrate deploy` before the build.
+4. Deploy. The `vercel-build` script applies migrations first (`scripts/migrate.js`)
+   over the direct, non-pooled connection (`DIRECT_URL` or Neon's `DATABASE_URL_UNPOOLED`):
+   migrations fail with P1002 through the pooler.
 5. Fill the database once: `vercel env pull .env.local`, then `npm run db:seed`.
 
 ## Option 2: Docker on a server (EC2 or any VPS)
