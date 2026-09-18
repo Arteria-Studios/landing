@@ -551,14 +551,17 @@ a:hover .roll span { transform: translateY(-100%); }
   inset: -8% 0;
   transform: translateY(var(--pan, 0));
 }
-.card-pan img {
+.card-pan img,
+.card-pan video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transform: scale(1.35);
   transition: transform 1.6s cubic-bezier(.2, .8, .2, 1);
 }
-.card-media.is-in .card-pan img { transform: none; }
+.card-media.is-in .card-pan img,
+.card-media.is-in .card-pan video { transform: none; }
 .distort {
   position: absolute;
   inset: 0;
@@ -929,7 +932,8 @@ a:hover .roll span { transform: translateY(-100%); }
   background: #111;
   will-change: transform;
 }
-.wk-img img { width: 100%; height: 100%; object-fit: cover; }
+.wk-img img,
+.wk-img video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 .wk-meta {
   position: absolute;

@@ -1,28 +1,28 @@
-const IMG = "assets/img/";
+const IMG = "assets/media/";
 
 const PROJECTS = [
-  { title: "San Vicente Clubs", home: "San Vicente Clubs", tag: "Presentation", img: "san-vicente-clubs.gif" },
-  { title: "Quanto", home: "Quanto", tag: "Branding", img: "quanto.gif" },
-  { title: "Agronauts", home: "Agronauts", tag: "Branding, Product Design", img: "agronauts.gif" },
-  { title: "Celesta", home: "Celesta®", tag: "Branding", img: "celesta.gif" },
-  { title: "Redmouse", home: "Redmouse", tag: "Website", img: "redmouse.gif" },
-  { title: "ArteriaStudios", home: "ArteriaStudios®", tag: "Campaign", img: "arteriastudios.gif" },
-  { title: "Digest AI", home: "Digest AI", tag: "Branding, Product Design", img: "digest-ai.gif" },
-  { title: "ARDA FightClub", home: "ARDA FightClub", tag: "Presentations", img: "placeholder.jpg" },
-  { title: "Carriving", home: "Carriving", tag: "Branding, Product Design, Marketing Materials", img: "carriving.jpg" },
-  { title: "Medhub", home: "Medhub", tag: "Coverstory", img: "medhub.jpg" },
-  { title: "AT Engineering", home: "AT Engineering", tag: "Website", img: "placeholder.jpg" },
-  { title: "Gulflink", home: "Gulflink", tag: "Website", img: "gulflink.png" },
-  { title: "HeatSentinel", home: "HeatSentinel", tag: "Presentation, Product Design", img: "placeholder.jpg" },
-  { title: "Educate AI", home: "Educate AI", tag: "Branding, Product Design, Presentations", img: "placeholder.jpg" },
-  { title: "Mediabay TV", home: "Mediabay", tag: "Branding, Product Design", img: "placeholder.jpg" },
-  { title: "HeritageCrafts", home: "HeritageCrafts", tag: "Product AI Generation Pipeline", img: "placeholder.jpg" },
-  { title: "PharmX", home: "PharmX", tag: "Branding, Presentations", img: "placeholder.jpg" },
-  { title: "PolyGinger", home: "PolyGinger", tag: "Branding", img: "placeholder.jpg" },
-  { title: "Evolta", home: "Evolta Corp", tag: "Branding", img: "placeholder.jpg" },
-  { title: "Basecamp", home: "Basecamp", tag: "Branding, Presentations", img: "placeholder.jpg" },
-  { title: "Medical Journal", home: "Medical Journal", tag: "Editorial Design", img: "placeholder.jpg" },
-  { title: "Logos 2025", home: "Logofolio 2025", tag: "Logos", img: "placeholder.jpg" },
+  { title: "San Vicente Clubs", home: "San Vicente Clubs", tag: "Presentation", img: "san-vicente-clubs.jpg", video: "san-vicente-clubs.mp4" },
+  { title: "Quanto", home: "Quanto", tag: "Branding", img: "quanto.jpg", video: "quanto.mp4" },
+  { title: "Agronauts", home: "Agronauts", tag: "Branding, Product Design", img: "agronauts.jpg", video: "agronauts.mp4" },
+  { title: "Celesta", home: "Celesta®", tag: "Branding", img: "celesta.jpg", video: "celesta.mp4" },
+  { title: "Redmouse", home: "Redmouse", tag: "Website", img: "redmouse.jpg", video: "redmouse.mp4" },
+  { title: "ArteriaStudios", home: "ArteriaStudios®", tag: "Campaign", img: "arteriastudios.jpg", video: "arteriastudios.mp4" },
+  { title: "Digest AI", home: "Digest AI", tag: "Branding, Product Design", img: "digest-ai.jpg", video: "digest-ai.mp4" },
+  { title: "ARDA FightClub", home: "ARDA FightClub", tag: "Presentations", img: "placeholder.webp" },
+  { title: "Carriving", home: "Carriving", tag: "Branding, Product Design, Marketing Materials", img: "carriving.webp" },
+  { title: "Medhub", home: "Medhub", tag: "Coverstory", img: "medhub.webp" },
+  { title: "AT Engineering", home: "AT Engineering", tag: "Website", img: "placeholder.webp" },
+  { title: "Gulflink", home: "Gulflink", tag: "Website", img: "gulflink.webp" },
+  { title: "HeatSentinel", home: "HeatSentinel", tag: "Presentation, Product Design", img: "placeholder.webp" },
+  { title: "Educate AI", home: "Educate AI", tag: "Branding, Product Design, Presentations", img: "placeholder.webp" },
+  { title: "Mediabay TV", home: "Mediabay", tag: "Branding, Product Design", img: "placeholder.webp" },
+  { title: "HeritageCrafts", home: "HeritageCrafts", tag: "Product AI Generation Pipeline", img: "placeholder.webp" },
+  { title: "PharmX", home: "PharmX", tag: "Branding, Presentations", img: "placeholder.webp" },
+  { title: "PolyGinger", home: "PolyGinger", tag: "Branding", img: "placeholder.webp" },
+  { title: "Evolta", home: "Evolta Corp", tag: "Branding", img: "placeholder.webp" },
+  { title: "Basecamp", home: "Basecamp", tag: "Branding, Presentations", img: "placeholder.webp" },
+  { title: "Medical Journal", home: "Medical Journal", tag: "Editorial Design", img: "placeholder.webp" },
+  { title: "Logos 2025", home: "Logofolio 2025", tag: "Logos", img: "placeholder.webp" },
 ];
 
 /* While the page is moving, hover effects stand down: a still cursor over moving
@@ -38,6 +38,11 @@ const PROJECTS = [
 }
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* Project media: a muted looping video (started only on screen) or a still image. */
+const media = (p, alt, eager = false) => p.video
+  ? `<video muted loop playsinline preload="none" poster="${IMG + p.img}" data-src="${IMG + p.video}" aria-label="${esc(alt)}"></video>`
+  : `<img src="${IMG + p.img}" alt="${esc(alt)}" loading="${eager ? "eager" : "lazy"}">`;
+
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 /* ---------- Home: grid ---------- */
@@ -49,7 +54,7 @@ if (grid) {
   if (pc) pc.textContent = `(${pad(Math.min(HOME_PROJECTS, PROJECTS.length))} / ${pad(PROJECTS.length)})`;
   grid.innerHTML = PROJECTS.slice(0, HOME_PROJECTS).map(
     (p) => `<a class="card" href="#" data-beat>
-      <div class="card-media"><div class="card-pan"><img src="${IMG + p.img}" alt="${esc(p.home)}" loading="lazy"></div></div>
+      <div class="card-media"><div class="card-pan">${media(p, p.home)}</div></div>
       <div class="card-meta">
         <span class="card-tags">${esc(p.tag)}</span>
         <h3><i aria-hidden="true">→</i>${esc(p.home)}</h3>
@@ -210,7 +215,7 @@ if (works) {
   numsEl.innerHTML = PROJECTS.map((_, i) => `<span class="wk-num">${String(i + 1).padStart(3, "0")}</span>`).join("");
   namesEl.before(numsEl);
   imgsEl.innerHTML = PROJECTS.map((p, i) =>
-    `<a class="wk-img" href="#" data-i="${i}"><img src="${IMG + p.img}" alt="${esc(p.title)}" loading="${i < 4 ? "eager" : "lazy"}"></a>`
+    `<a class="wk-img" href="#" data-i="${i}">${media(p, p.title, i < 4)}</a>`
   ).join("");
   const names = [...namesEl.children];
   const imgs = [...imgsEl.children];
@@ -395,7 +400,7 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
     const field = new Float32Array(GRID * GRID * 2);
     const bytes = new Uint8Array(GRID * GRID * 4);
 
-    let card = null, img = null, raf = 0, isGif = false;
+    let card = null, img = null, raf = 0, isLive = false;
     let mouse = { x: 0, y: 0, vx: 0, vy: 0, has: false };
 
     // Measure the box the canvas actually covers: the image's own parent, which on
@@ -407,7 +412,7 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
       canvas.height = Math.round(r.height * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
       const pa = r.width / r.height;
-      const ia = img.naturalWidth / img.naturalHeight;
+      const ia = (img.naturalWidth || img.videoWidth) / (img.naturalHeight || img.videoHeight);
       gl.uniform2f(uCover, pa > ia ? 1 : pa / ia, pa > ia ? ia / pa : 1);
     };
 
@@ -449,7 +454,7 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
       gl.bindTexture(gl.TEXTURE_2D, gridTex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GRID, GRID, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
 
-      if (isGif) uploadImage(); // re-upload so GIFs keep animating
+      if (isLive) uploadImage(); // re-upload so video keeps playing inside the effect
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
       if (!mouse.has && energy < 0.01) { detach(); return; }
@@ -467,8 +472,8 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
       if (card === el) return;
       if (card) detach();
       card = el;
-      img = el.querySelector("img");
-      isGif = /\.gif($|\?)/i.test(img.src);
+      img = el.querySelector("img, video");
+      isLive = img.tagName === "VIDEO";
       field.fill(0);
       img.after(canvas);
       resize();
@@ -483,8 +488,9 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
 
     cards.forEach((el) => {
       el.addEventListener("mouseenter", (e) => {
-        const im = el.querySelector("img");
-        if (!im.complete || !im.naturalWidth) return;
+        const im = el.querySelector("img, video");
+        // Media must have a frame to draw: a loaded image, or a video with data.
+        if (im.tagName === "VIDEO" ? im.readyState < 2 : (!im.complete || !im.naturalWidth)) return;
         // Wait until the scroll reveal has settled, otherwise the canvas (drawn at
         // scale 1) would jump against the still-zoomed image.
         if (getComputedStyle(im).transform !== "none") return;
@@ -505,6 +511,19 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
     });
     addEventListener("resize", () => { if (card) resize(); });
   }
+}
+
+/* ---------- Project videos: play only while visible ---------- */
+{
+  const vids = document.querySelectorAll("video[data-src]");
+  const vio = new IntersectionObserver((entries) => entries.forEach((en) => {
+    const v = en.target;
+    if (en.isIntersecting) {
+      if (!v.src) { v.src = v.dataset.src; v.preload = "auto"; }
+      if (!reducedMotion) v.play().catch(() => {});
+    } else if (!v.paused) v.pause();
+  }), { rootMargin: "200px 0px" });
+  vids.forEach((v) => vio.observe(v));
 }
 
 /* ---------- Reveal on scroll ---------- */
