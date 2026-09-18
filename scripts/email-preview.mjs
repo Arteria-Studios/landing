@@ -5,7 +5,7 @@
  * The page renders the real template (lib/email/request-received.mjs) in an
  * iframe, with controls for the name and brief, desktop/phone width and a
  * "Gmail" mode that drops <style> (no animations, no hover), like clients
- * that ignore it. The hero GIF is embedded, so the file works offline.
+ * that ignore it.
  */
 import fs from 'fs'
 import path from 'path'
@@ -16,7 +16,6 @@ const out = process.argv[2] || path.join(root, 'email-preview.html')
 const template = fs
   .readFileSync(path.join(root, 'lib/email/request-received.mjs'), 'utf8')
   .replace(/^export /gm, '')
-const gif = fs.readFileSync(path.join(root, 'public/assets/email/pulse.gif')).toString('base64')
 
 const page = `<!doctype html>
 <html lang="en">
@@ -55,7 +54,7 @@ const page = `<!doctype html>
 <body>
 <div class="app">
   <aside>
-    <div><h1>Request received</h1><div class="sub">Auto-reply to the Start a project form</div></div>
+    <div><h1>Request received</h1><div class="sub">Personal auto-reply to the Start a project form</div></div>
     <label>Name<input id="name" value="Jane Smith"></label>
     <label>Company<input id="company" value="Acme Inc."></label>
     <label>Services<div class="seg" id="services"></div></label>
@@ -64,12 +63,12 @@ const page = `<!doctype html>
     <label>About the project<textarea id="message">We’re launching an AI assistant for clinics and need a brand plus a web app. Timeline is tight.</textarea></label>
     <label>Screen<div class="seg" data-group="width"><button data-v="600" aria-pressed="true">Desktop</button><button data-v="375" aria-pressed="false">Phone</button></div></label>
     <label>Client<div class="seg" data-group="client"><button data-v="apple" aria-pressed="true">Apple Mail</button><button data-v="gmail" aria-pressed="false">Gmail / no CSS</button></div></label>
-    <div class="meta">Apple Mail and iOS Mail play the CSS motion: the live dot beats at 54 BPM and a pulse walks down the red thread. Hover the steps and the button on desktop. Every client plays the animated hero (the site's preloader).<br><br>From: <b>ArteriaStudios</b><br>Reply-to: the studio inbox</div>
+    <div class="meta">A short personal note, no images or buttons, so Gmail files it as a letter (Primary), not as a newsletter (Promotions).<br><br>From: <b>Serge from ArteriaStudios</b><br>serge@thearteria.com, replies go there too</div>
   </aside>
   <main>
     <div class="inbox">
       <div class="headers">
-        <div><span class="k">From</span>ArteriaStudios</div>
+        <div><span class="k">From</span>Serge from ArteriaStudios</div>
         <div><span class="k">To</span><span id="to"></span></div>
         <div class="subject" id="subject"></div>
         <div class="pre" id="pre"></div>
@@ -80,7 +79,6 @@ const page = `<!doctype html>
 </div>
 <script>
 ${template}
-const HERO = "data:image/gif;base64,${gif}";
 const ALL = ["Branding", "Design", "Product", "Development", "AI", "Motion & 3D", "Strategy", "Promotion"];
 const picked = new Set(["Branding", "Development", "AI"]);
 const $ = (id) => document.getElementById(id);
@@ -103,7 +101,7 @@ function render() {
   const email = buildRequestReceivedEmail({
     name: $("name").value, company: $("company").value, budget: $("budget").value,
     timeline: $("timeline").value, message: $("message").value, services: ALL.filter((s) => picked.has(s)),
-    requestId: "cmu7a30ui0003vvsogk9u6v1x", siteUrl: "https://www.thearteria.com", heroUrl: HERO,
+    siteUrl: "https://www.thearteria.com",
   });
   let html = email.html;
   if (state.client === "gmail") html = html.replace(/<style>[\\s\\S]*?<\\/style>/, "");

@@ -49,7 +49,7 @@ visitor's mail app. Useful as a preview, not as the production site.
 | `BLOB_READ_WRITE_TOKEN` | for uploads | Vercel Blob token (not needed on Vercel with a linked store) |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | optional | Forward contact requests to Telegram |
 | `BREVO_EMAIL_SMTP_KEY` (or `SMTP_PASS`) | for the auto-reply | SMTP key; the visitor gets the "request received" email |
-| `MAIL_FROM` | for the auto-reply | Sender, verified in Brevo, e.g. `ArteriaStudios <hello@thearteria.com>` |
+| `MAIL_FROM` | optional | Sender, verified in Brevo. Default `Serge from ArteriaStudios <serge@thearteria.com>`; a named person keeps the auto-reply out of Gmail's Promotions |
 | `MAIL_REPLY_TO` | optional | Where replies to the auto-reply go (defaults to `MAIL_FROM`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` | optional | Default to Brevo: `smtp-relay.brevo.com`, `587`, the studio's Brevo login |
 

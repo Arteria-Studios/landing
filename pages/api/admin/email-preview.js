@@ -21,7 +21,6 @@ export default function handler(req, res) {
     message:
       q.message ??
       'We’re launching an AI assistant for clinics and need a brand plus a web app.',
-    requestId: 'preview0000',
     siteUrl: process.env.WEBSITE_URL || 'https://www.thearteria.com',
   })
   if (q.format === 'text') {
