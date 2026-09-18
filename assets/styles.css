@@ -1339,11 +1339,13 @@ main { position: relative; }
   /* Bigger touch targets for the chips (~42px tall). */
   .chip, .seg span { padding: 11px 15px; font-size: 15px; }
   .field-row { grid-template-columns: 1fr; }
-  .wk { --wk-side: var(--pad); --wk-img-w: 42vw; }
-  .wk-names { left: calc(var(--wk-side) + 34px); }
+  /* Names get the width, images a narrow column: the focused name should end
+     before the images, so it stays readable without the blend overlap. */
+  .wk { --wk-side: var(--pad); --wk-img-w: 30vw; }
+  .wk-names { left: calc(var(--wk-side) + 30px); right: var(--wk-side); }
   .wk-num { font-size: 10px; }
   .wk-meta { flex-direction: column; gap: 4px; }
-  .wk-name { font-size: 9vw; }
+  .wk-name { font-size: 7.2vw; }
 }
 
 /* ---------- Small tablets (600–809px): two columns instead of one ---------- */
