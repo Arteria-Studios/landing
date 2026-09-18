@@ -1,10 +1,10 @@
-/* ---------- Works: layered dot grids with scroll parallax (WebGL) ----------
-   Three perfectly regular grids of tiny dots at different depths, drawn
-   procedurally in one fragment shader, so they are infinite and pixel-crisp.
-   Nearer layers have a wider pitch, slightly larger dots, and move faster with
-   the page; the farthest barely moves. One dot in a hundred on the near layer
-   is red and swells faintly on the shared heartbeat. Nothing else: the depth
-   comes from the parallax alone. With reduced motion the grids stand still. */
+/* ---------- Works: liquid gradient background with scroll parallax (WebGL) ----------
+   Soft, dark crimson and maroon colour fields slowly flowing into each other
+   (domain-warped low-frequency noise). The field scrolls at a fraction of the
+   page speed, so it sits behind the list with a calm parallax. Kept dark,
+   darker still on the left under the project names. Rendered at low
+   resolution: a smooth gradient needs no detail. With reduced motion it is a
+   still image without parallax. */
 (() => {
   const canvas = document.querySelector("[data-depth]");
   if (!canvas) return;
@@ -12,51 +12,51 @@
   if (!gl) return;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Per layer: pitch (px), dot radius (px), opacity, parallax factor (× scroll).
-  const LAYERS = [
-    [64, 1.5, 0.26, 0.34],   // near
-    [40, 1.1, 0.16, 0.18],   // middle
-    [26, 0.8, 0.09, 0.07],   // far
-  ];
-  const f = (n) => n.toFixed(3);
+  const PARALLAX = 0.25;   // gradient moves at a quarter of the page's scroll speed
+  const SCALE = 0.35;      // render resolution; CSS scales it up smoothly
 
   const vs = `
     attribute vec2 p;
     void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
   const fs = `
     precision highp float;
-    uniform vec2 uRes;        // CSS px
-    uniform float uDpr;
-    uniform float uScroll;    // smoothed page scroll, CSS px
-    uniform vec2 uTilt;       // mouse offset, CSS px
+    uniform vec2 uRes;        // canvas size in px
+    uniform float uTime;
+    uniform float uOffset;    // parallax offset, in screen heights
     uniform float uBeat;
 
     float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-
-    // One grid layer. Returns dot coverage; "red" marks the rare accent cells.
-    float layer(vec2 px, float pitch, float r, float par, float redBoost, out float red) {
-      vec2 w = px + vec2(0.0, uScroll * par) + uTilt * par;
-      red = step(0.99, hash(floor(w / pitch)));
-      float rr = r * (1.0 + red * redBoost);
-      float d = length(mod(w, pitch) - pitch * 0.5);
-      return 1.0 - smoothstep(rr - 0.5, rr + 0.6, d);
+    float noise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+                 mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+    }
+    float fbm(vec2 p) {
+      float v = 0.0, a = 0.5;
+      for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.02 + 17.0; a *= 0.5; }
+      return v;
     }
 
     void main() {
-      // Top-down CSS pixel coordinates, like the page.
-      vec2 px = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
-      vec3 col = vec3(0.0);
-      float red;
-      // Near layer: the only one with red accent dots, which swell on the beat.
-      float c0 = layer(px, ${f(LAYERS[0][0])}, ${f(LAYERS[0][1])}, ${f(LAYERS[0][3])}, 0.6 + 0.8 * uBeat, red);
-      col += mix(vec3(${f(LAYERS[0][2])}), vec3(1.0, 0.23, 0.16) * (0.7 + 0.3 * uBeat), red) * c0;
-      float c1 = layer(px, ${f(LAYERS[1][0])}, ${f(LAYERS[1][1])}, ${f(LAYERS[1][3])}, 0.0, red);
-      col += vec3(${f(LAYERS[1][2])}) * c1;
-      float c2 = layer(px, ${f(LAYERS[2][0])}, ${f(LAYERS[2][1])}, ${f(LAYERS[2][3])}, 0.0, red);
-      col += vec3(${f(LAYERS[2][2])}) * c2;
-      // Soft falloff towards the edges keeps the grid quiet around the frame.
-      vec2 uv = px / uRes;
-      col *= smoothstep(1.15, 0.35, length((uv - 0.5) * vec2(1.1, 1.0)));
+      vec2 uv = gl_FragCoord.xy / uRes;
+      float aspect = uRes.x / uRes.y;
+      // Page coordinates: the field slides up with scroll, slower than the page.
+      vec2 p = vec2(uv.x * aspect, uv.y - uOffset) * 1.1;
+      float t = uTime * 0.025;
+
+      // Liquid: noise warped by noise, very low frequency, slow.
+      vec2 w = vec2(fbm(p + vec2(0.0, t)), fbm(p + vec2(5.2, 1.3) - t));
+      float f = fbm(p + 1.6 * w + vec2(t * 0.6, -t * 0.4));
+
+      vec3 black  = vec3(0.0);
+      vec3 maroon = vec3(0.16, 0.0, 0.02);
+      vec3 crimson = vec3(0.42, 0.02, 0.04);
+      vec3 col = mix(black, maroon, smoothstep(0.3, 0.72, f));
+      col = mix(col, crimson, smoothstep(0.56, 0.9, f) * 0.75);
+      col *= 0.96 + 0.06 * uBeat;
+      // Darker on the left, under the project names.
+      col *= mix(0.45, 1.0, smoothstep(0.1, 0.85, uv.x));
       gl_FragColor = vec4(col, 1.0);
     }`;
 
@@ -73,32 +73,25 @@
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = (n) => gl.getUniformLocation(prog, n);
-  const uRes = U("uRes"), uDpr = U("uDpr"), uScroll = U("uScroll"), uTilt = U("uTilt"), uBeat = U("uBeat");
+  const uRes = U("uRes"), uTime = U("uTime"), uOffset = U("uOffset"), uBeat = U("uBeat");
 
   const fit = () => {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(innerWidth * dpr);
-    canvas.height = Math.round(innerHeight * dpr);
+    canvas.width = Math.max(1, Math.round(innerWidth * SCALE));
+    canvas.height = Math.max(1, Math.round(innerHeight * SCALE));
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.uniform2f(uRes, innerWidth, innerHeight);
-    gl.uniform1f(uDpr, dpr);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
   };
   addEventListener("resize", fit);
   fit();
 
-  let sy = scrollY;
-  const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
-  addEventListener("pointermove", (e) => {
-    tilt.tx = (e.clientX / innerWidth - 0.5) * -24;
-    tilt.ty = (e.clientY / innerHeight - 0.5) * -24;
-  }, { passive: true });
-
-  const draw = () => {
-    sy += (scrollY - sy) * 0.14;
-    tilt.x += (tilt.tx - tilt.x) * 0.05;
-    tilt.y += (tilt.ty - tilt.y) * 0.05;
-    gl.uniform1f(uScroll, still ? 0 : sy);
-    gl.uniform2f(uTilt, still ? 0 : tilt.x, still ? 0 : tilt.y);
+  let sy = scrollY, time = 20, last = 0;
+  const draw = (now) => {
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+    last = now;
+    time += dt;
+    sy += (scrollY - sy) * 0.12;
+    gl.uniform1f(uTime, still ? 20 : time);
+    gl.uniform1f(uOffset, still ? 0 : (sy * PARALLAX) / innerHeight);
     gl.uniform1f(uBeat, typeof heartbeat === "function" && !still ? heartbeat() : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!still) requestAnimationFrame(draw);
