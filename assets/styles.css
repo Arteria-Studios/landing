@@ -1094,6 +1094,9 @@ a:hover .roll span { transform: translateY(-100%); }
   font-size: 13px;
   letter-spacing: -0.2px;
 }
+.wk-open { display: none; }
+.wk-snaps { position: absolute; inset: 0 0 auto 0; pointer-events: none; }
+.wk-snaps i { display: block; scroll-snap-align: start; }
 .wk-meta [data-idx] { min-width: 50px; opacity: .5; font-family: "DM Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
 
 /* ---------- Red thread between sections ---------- */
@@ -1339,13 +1342,36 @@ main { position: relative; }
   /* Bigger touch targets for the chips (~42px tall). */
   .chip, .seg span { padding: 11px 15px; font-size: 15px; }
   .field-row { grid-template-columns: 1fr; }
-  /* Names get the width, images a narrow column: the focused name should end
-     before the images, so it stays readable without the blend overlap. */
-  .wk { --wk-side: var(--pad); --wk-img-w: 30vw; }
-  .wk-names { left: calc(var(--wk-side) + 30px); right: var(--wk-side); }
+  /* Phone layout: one large preview on top (the focused project, crossfading as
+     you swipe), its meta and a clear "View case" link under it, and the list of
+     names below. The page snaps to the nearest project when a swipe settles. */
+  html:has(.wk) { scroll-snap-type: y proximity; }
+  .wk { --wk-side: var(--pad); --wk-img-w: calc(100vw - 2 * var(--pad)); --wk-img-top: calc(var(--nav-h) + 8px); }
+  .wk-stage { height: 100svh; }
+  .wk-imgs { top: var(--wk-img-top); z-index: 3; }
+  .wk-img { transform-origin: 50% 50%; }
+  .wk-meta {
+    top: calc(var(--wk-img-top) + var(--wk-img-w) * 2 / 3 + 14px);
+    bottom: auto;
+    left: var(--wk-side);
+    width: auto;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .wk-meta [data-idx] { min-width: 0; }
+  .wk-meta [data-tag] { opacity: .6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wk-open { display: inline-flex; gap: 6px; padding: 10px 0 10px 10px; margin: -10px 0; font-size: 14px; color: var(--accent, #ff3b2a); }
+  /* Names sit in the lower part, under the preview (which covers any that drift up). */
+  /* The list window starts under the meta row; names leaving it upwards are cut. */
+  .wk { --wk-list-top: calc(var(--wk-img-top) + var(--wk-img-w) * 2 / 3 + 50px); --wk-above: calc((100svh - var(--wk-list-top)) * 0.3 + 12px); }
+  .wk-nums, .wk-names { top: calc(var(--wk-list-top) + var(--wk-above)); clip-path: inset(calc(-1 * var(--wk-above)) -100vw -100vh -100vw); }
+  .wk-names { left: calc(var(--wk-side) + 30px); right: var(--wk-side); mix-blend-mode: normal; }
+  .wk-nums { mix-blend-mode: normal; }
   .wk-num { font-size: 10px; }
-  .wk-meta { flex-direction: column; gap: 4px; }
-  .wk-name { font-size: 7.2vw; }
+  .wk-name { font-size: 9vw; }
 }
 
 /* ---------- Small tablets (600–809px): two columns instead of one ---------- */

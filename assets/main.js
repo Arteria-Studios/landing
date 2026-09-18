@@ -307,6 +307,10 @@ if (works) {
   const imgsEl = works.querySelector(".wk-imgs");
   const idxEl = works.querySelector("[data-idx]");
   const tagEl = works.querySelector("[data-tag]");
+  const openEl = works.querySelector("[data-open]");
+  // Phones get their own layout: one large preview on top and the names below.
+  const phoneMQ = matchMedia("(max-width: 809px)");
+  let phone = phoneMQ.matches;
 
   namesEl.innerHTML = PROJECTS.map((p, i) => `<a class="wk-name" href="${caseUrl(p)}" data-i="${i}">${esc(p.title)}</a>`).join("");
   const numsEl = document.createElement("div");
@@ -327,9 +331,23 @@ if (works) {
   let target = 0, current = 0, raf = 0, shown = -1;
   let vel = 0, pos = 0, driving = false, lastT = 0;
 
+  // Invisible snap points, one per project, so a swipe settles on a project.
+  const snapsEl = document.createElement("div");
+  snapsEl.className = "wk-snaps";
+  snapsEl.setAttribute("aria-hidden", "true");
+  snapsEl.innerHTML = "<i></i>".repeat(N);
+  works.prepend(snapsEl);
+
+  let measuredW = 0;
   const measure = () => {
-    step = innerHeight * 0.45;                     // scroll distance per project
-    works.style.height = `${(N - 1) * step + innerHeight}px`;
+    phone = phoneMQ.matches;
+    measuredW = innerWidth;
+    // On phones a project takes a shorter swipe; the stage height is the small
+    // viewport, so the browser bar showing and hiding doesn't shift anything.
+    const vh = phone ? works.querySelector(".wk-stage").offsetHeight : innerHeight;
+    step = vh * (phone ? 0.3 : 0.45);              // scroll distance per project
+    works.style.height = `${(N - 1) * step + vh}px`;
+    [...snapsEl.children].forEach((el) => { el.style.height = `${step}px`; });
     nameH = names[0].offsetHeight;
     imgH = imgs[0].offsetHeight;
   };
@@ -367,20 +385,48 @@ if (works) {
       num.style.transform = `translateY(${y.toFixed(1)}px) translateY(-50%)`;
       num.style.opacity = o;
     });
-    layout(imgs, imgH, IMG_GAP, (d) => 0.42 + 0.58 * bell(d, 1.1), (el, y, s, d) => {
-      el.style.transform = `translateY(${(y - imgH / 2).toFixed(1)}px) scale(${s.toFixed(4)})`;
-      el.style.opacity = fade(d, 0.4, 0.08).toFixed(3);
-    });
+    if (phone) {
+      // One preview: the focused image, crossfading into its neighbour as you swipe.
+      imgs.forEach((el, i) => {
+        const d = i - current, a = Math.abs(d);
+        const o = Math.max(0, 1 - a * 1.25);
+        el.style.transform = `translateY(${(-d * 24).toFixed(1)}px) scale(${(1 - Math.min(1, a) * 0.04).toFixed(4)})`;
+        el.style.opacity = o.toFixed(3);
+        el.style.visibility = o > 0 ? "" : "hidden";
+        el.style.pointerEvents = a < 0.5 ? "" : "none";
+      });
+    } else {
+      layout(imgs, imgH, IMG_GAP, (d) => 0.42 + 0.58 * bell(d, 1.1), (el, y, s, d) => {
+        el.style.transform = `translateY(${(y - imgH / 2).toFixed(1)}px) scale(${s.toFixed(4)})`;
+        el.style.opacity = fade(d, 0.4, 0.08).toFixed(3);
+        el.style.visibility = el.style.pointerEvents = "";
+      });
+    }
 
     const i = Math.round(current);
     if (i !== shown) {
       shown = i;
       idxEl.textContent = `${String(i + 1).padStart(3, "0")} / ${String(N).padStart(3, "0")}`;
       tagEl.textContent = PROJECTS[i].tag;
+      openEl.href = caseUrl(PROJECTS[i]);
+      openEl.setAttribute("aria-label", `View case: ${PROJECTS[i].title}`);
+      if (phone) playFocused(i);
     }
     raf = current === target ? 0 : requestAnimationFrame(render);
   };
   const kick = () => { if (!raf) raf = requestAnimationFrame(render); };
+
+  // Phones: only the focused project's video loads and plays; the rest stay posters.
+  function playFocused(i) {
+    imgs.forEach((el, k) => {
+      const v = el.querySelector("video");
+      if (!v) return;
+      if (k === i) {
+        if (!v.src) { v.src = v.dataset.src; v.preload = "auto"; }
+        if (!reducedMotion) v.play().catch(() => {});
+      } else if (!v.paused) v.pause();
+    });
+  }
 
   const onScroll = () => {
     const r = works.getBoundingClientRect();
@@ -430,7 +476,14 @@ if (works) {
   namesEl.addEventListener("click", goTo);
   imgsEl.addEventListener("click", goTo);
 
-  addEventListener("resize", () => { measure(); onScroll(); current = target; render(); });
+  addEventListener("resize", () => {
+    // Phones fire resize when the browser bar hides: ignore height-only changes.
+    if (phoneMQ.matches && phone && innerWidth === measuredW) return;
+    const wasPhone = phone;
+    measure(); onScroll(); current = target;
+    if (wasPhone !== phone) shown = -1;
+    render();
+  });
   measure();
   onScroll();
   current = target;
@@ -621,6 +674,8 @@ if (cards.length && matchMedia("(hover: hover) and (prefers-reduced-motion: no-p
   const vids = document.querySelectorAll("video[data-src]");
   const vio = new IntersectionObserver((entries) => entries.forEach((en) => {
     const v = en.target;
+    // On phones the Works preview plays only its focused video (see the Works scroller).
+    if (v.closest(".wk-img") && matchMedia("(max-width: 809px)").matches) return;
     if (en.isIntersecting) {
       if (!v.src) { v.src = v.dataset.src; v.preload = "auto"; }
       if (!reducedMotion) v.play().catch(() => {});
