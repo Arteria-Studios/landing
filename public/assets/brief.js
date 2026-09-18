@@ -1,11 +1,12 @@
 /* ---------- Contact form + footer ----------
-   Sending: on the Next.js server (the API answered /data.js, so SITE_DATA is
-   set) the request goes to /api/contact: it is saved to the database, shown in
-   the admin and forwarded to Telegram. On a static host without the API it
-   opens in the visitor's mail app, addressed to CONTACT_EMAIL and fully written. */
+   Sending: the request goes to the Contacts API (POST api/contact): it is saved
+   to the database, shown in the admin under Contacts and forwarded to Telegram.
+   Where there is no API (a static host such as GitHub Pages: 404/405, or no
+   network route) it opens in the visitor's mail app, addressed to CONTACT_EMAIL
+   and fully written, so no request is lost. */
 (() => {
   const CONTACT_EMAIL = "name@email.com";   // TODO: the studio's address
-  const ENDPOINT = window.SITE_DATA ? "api/contact" : "";   // background sending when the API is there
+  const ENDPOINT = "api/contact";            // Contacts API (relative: works under a sub-path too)
   const STUDIO_TZ = "Europe/Moscow";         // TODO: the studio's time zone (IANA name)
   const DRAFT_KEY = "arteria-brief";
 
@@ -109,21 +110,42 @@
     ].filter(Boolean).join("\n");
 
     const btn = form.querySelector('button[type="submit"]');
+    const openMail = () => {
+      location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setStatus(`Your mail app is open with the request, ${brief.name}. Press send and we'll reply within 24 hours.`, "ok");
+    };
+    const done = () => {
+      try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    };
     btn.disabled = true;
+    setStatus("Sending…");
     try {
-      if (ENDPOINT) {
-        const res = await fetch(ENDPOINT, {
+      let res;
+      try {
+        res = await fetch(ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ ...brief, services, source: "landing_brief" }),
+          // Same fields the Contacts API stores: name, email, company, message (note),
+          // plus the brief: services, budget and timeline.
+          body: JSON.stringify({ ...brief, services, website: form.elements.website.value, source: "landing_brief" }),
         });
-        if (!res.ok) throw new Error(res.status);
-        setStatus(`Thanks, ${brief.name}. We'll reply within 24 hours.`, "ok");
-      } else {
-        location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        setStatus(`Your mail app is open with the request, ${brief.name}. Press send and we'll reply within 24 hours.`, "ok");
+      } catch (networkError) {
+        res = null;
       }
-      try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+      if (res && res.ok) {
+        setStatus(`Thanks, ${brief.name}. We'll reply within 24 hours.`, "ok");
+        form.reset();
+        servicesBox.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+        done();
+      } else if (!res || res.status === 404 || res.status === 405) {
+        openMail();   // no API on this host
+        done();
+      } else if (res.status === 400) {
+        const { error } = await res.json().catch(() => ({}));
+        setStatus(error ? `Please check the form: ${error}.` : "Please check the form and try again.", "error");
+      } else {
+        throw new Error(res.status);
+      }
     } catch (err) {
       setStatus(`Something went wrong. Please email us at ${CONTACT_EMAIL}.`, "error");
     } finally {
