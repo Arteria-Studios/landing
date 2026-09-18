@@ -1,6 +1,10 @@
+import { sendRequestReceived } from 'lib/mailer'
 import { prisma } from 'lib/prisma'
 
-const clip = (value, max) => String(value || '').trim().slice(0, max)
+const clip = (value, max) =>
+  String(value || '')
+    .trim()
+    .slice(0, max)
 
 const toList = (value) =>
   (Array.isArray(value) ? value : String(value || '').split(','))
@@ -8,7 +12,16 @@ const toList = (value) =>
     .filter(Boolean)
     .slice(0, 20)
 
-const sendTelegram = async ({ name, email, company, phone, services, budget, timeline, message }) => {
+const sendTelegram = async ({
+  name,
+  email,
+  company,
+  phone,
+  services,
+  budget,
+  timeline,
+  message,
+}) => {
   const token = process.env.TELEGRAM_BOT_TOKEN
   const chatId = process.env.TELEGRAM_CHAT_ID
   if (!token || !chatId) {
@@ -27,14 +40,17 @@ const sendTelegram = async ({ name, email, company, phone, services, budget, tim
     `Message: ${message}`,
   ].join('\n')
 
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-    }),
-  })
+  const response = await fetch(
+    `https://api.telegram.org/bot${token}/sendMessage`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+      }),
+    },
+  )
 
   if (!response.ok) {
     const errorText = await response.text()
@@ -73,7 +89,9 @@ export default async function handler(req, res) {
       note || (services.length ? `Project request: ${services.join(', ')}` : '')
 
     if (!name || !email || !message) {
-      return res.status(400).json({ error: 'name, email and message (or services) are required' })
+      return res
+        .status(400)
+        .json({ error: 'name, email and message (or services) are required' })
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'email is invalid' })
@@ -89,26 +107,37 @@ export default async function handler(req, res) {
         services,
         budget,
         timeline,
-        source: body.source === 'landing_brief' ? 'landing_brief' : 'landing_contact_form',
+        source:
+          body.source === 'landing_brief'
+            ? 'landing_brief'
+            : 'landing_contact_form',
       },
     })
 
-    const telegramResult = await sendTelegram({
-      name,
-      email,
-      company,
-      phone,
-      services,
-      budget,
-      timeline,
-      message,
-    })
+    // Confirmation to the visitor and the studio's Telegram, in parallel.
+    const [telegramResult, emailResult] = await Promise.all([
+      sendTelegram({
+        name,
+        email,
+        company,
+        phone,
+        services,
+        budget,
+        timeline,
+        message,
+      }).catch((error) => ({ ok: false, error: error.message })),
+      sendRequestReceived(saved),
+    ])
     return res.status(201).json({
       item: saved,
       telegramSent: telegramResult.ok,
       telegramError: telegramResult.error || null,
+      emailSent: emailResult.sent,
+      emailError: emailResult.error,
     })
   } catch (error) {
-    return res.status(500).json({ error: error.message || 'Failed to submit contact form' })
+    return res
+      .status(500)
+      .json({ error: error.message || 'Failed to submit contact form' })
   }
 }
