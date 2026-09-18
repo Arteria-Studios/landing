@@ -6,182 +6,203 @@
   const canvases = [...document.querySelectorAll("canvas[data-icon]")];
   if (!canvases.length) return;
 
+  /* ---------- Icon design code ----------
+     Every icon follows the same rules so the set reads as one family:
+     - geometry on a 48-unit grid, live area ±20 units, scaled to the canvas;
+     - one stroke weight (STROKE px) in two tones: INK for the main form,
+       SOFT for construction and secondary lines; round caps and joins;
+     - exactly one red accent per icon, the only element that reacts to the
+       heartbeat (same swell for all);
+     - one motion clock: a loop of four heartbeats, the same ease-in-out curve,
+       so every icon moves at the same pace and settles at the same moments. */
+  const STROKE = 1.5;                       // px, for every line in every icon
+  const DOT = 2.25;                         // px, radius of small dots
+  const INK = "rgba(255, 255, 255, 0.92)";
+  const SOFT = "rgba(255, 255, 255, 0.28)";
   const RED = "#ff3b2a";
-  const red = (a) => `rgba(255, 59, 42, ${a})`;
-  const white = (a) => `rgba(255, 255, 255, ${a})`;
   const TAU = Math.PI * 2;
+  const LOOP = 4 * (60 / 54);               // four heartbeats ≈ 4.44 s
+  const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const wave = (u) => 0.5 - 0.5 * Math.cos(u * TAU);          // 0 → 1 → 0 over a loop, eased
 
-  /* Each icon: (ctx, w, h, t) with t in seconds. */
+  /* Drawing helpers: all shapes go through these, so weight and caps never drift. */
+  const pen = (c, color = INK, alpha = 1) => {
+    c.lineWidth = STROKE; c.lineCap = "round"; c.lineJoin = "round";
+    c.strokeStyle = color; c.globalAlpha = alpha;
+  };
+  const line = (c, pts, color, alpha) => {
+    pen(c, color, alpha); c.beginPath();
+    pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
+    c.stroke(); c.globalAlpha = 1;
+  };
+  const ring = (c, x, y, r, color, alpha, a0 = 0, a1 = TAU) => {
+    pen(c, color, alpha); c.beginPath(); c.arc(x, y, r, a0, a1); c.stroke(); c.globalAlpha = 1;
+  };
+  const dot = (c, x, y, r = DOT, color = INK, alpha = 1) => {
+    c.globalAlpha = alpha; c.fillStyle = color; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.globalAlpha = 1;
+  };
+  // The red accent: a dot that swells and glows on the heartbeat, identical everywhere.
+  const accent = (c, x, y, beat, r = DOT * 1.35) => {
+    c.save();
+    c.shadowColor = "rgba(255, 59, 42, 0.9)";
+    c.shadowBlur = 6 + 10 * beat;
+    dot(c, x, y, r * (1 + 0.35 * beat), RED);
+    c.restore();
+  };
+  // Unit box: maps the ±24 grid onto the canvas, centred.
+  const box = (w, h) => {
+    const s = Math.min(w, h) / 48;
+    return { s, X: (u) => w / 2 + u * s, Y: (v) => h / 2 + v * s };
+  };
+
+  /* Each icon: (ctx, w, h, t, beat). u = position in the shared loop (0..1). */
   const ICONS = {
-    // Radar: rings, a sweeping beam and targets that light up as it passes.
-    strategy(c, w, h, t) {
-      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.44;
-      c.lineWidth = 1;
-      for (let i = 1; i <= 3; i++) { c.strokeStyle = white(0.12); c.beginPath(); c.arc(cx, cy, R * i / 3, 0, TAU); c.stroke(); }
-      c.beginPath(); c.moveTo(cx - R, cy); c.lineTo(cx + R, cy); c.moveTo(cx, cy - R); c.lineTo(cx, cy + R); c.stroke();
-      const a = t * 1.3;
-      for (let k = 0; k < 18; k++) {
-        const b = a - k * 0.035;
-        c.strokeStyle = red(0.5 * (1 - k / 18));
-        c.lineWidth = 2;
-        c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(b) * R, cy + Math.sin(b) * R); c.stroke();
-      }
-      [[0.6, 0.8], [0.35, 2.6], [0.8, 4.3], [0.5, 5.5]].forEach(([d, ang]) => {
-        const diff = ((a - ang) % TAU + TAU) % TAU;
-        const glow = Math.exp(-diff * 1.4);
-        c.fillStyle = red(0.25 + 0.75 * glow);
-        c.beginPath(); c.arc(cx + Math.cos(ang) * R * d, cy + Math.sin(ang) * R * d, 2.5 + glow * 3, 0, TAU); c.fill();
+    // Strategy: a target; the red point homes in from the outer ring to the centre.
+    strategy(c, w, h, t, beat) {
+      const { s, X, Y } = box(w, h);
+      const u = (t % LOOP) / LOOP;
+      ring(c, X(0), Y(0), 20 * s, SOFT);
+      ring(c, X(0), Y(0), 11 * s, INK);
+      [[0, -1], [1, 0], [0, 1], [-1, 0]].forEach(([dx, dy]) =>
+        line(c, [[X(dx * 15), Y(dy * 15)], [X(dx * 20), Y(dy * 20)]], INK));
+      const k = ease(clamp01(u / 0.7));                     // approach, then hold on target
+      const a = -2.4 + k * 1.6, r = 20 * (1 - k);
+      accent(c, X(Math.cos(a) * r), Y(Math.sin(a) * r), beat);
+    },
+
+    // Branding: a mark; an inner arc turns once per loop, the red point leads it.
+    branding(c, w, h, t, beat) {
+      const { s, X, Y } = box(w, h);
+      const u = (t % LOOP) / LOOP;
+      ring(c, X(0), Y(0), 20 * s, INK);
+      const a = -Math.PI / 2 + ease(u) * TAU;
+      ring(c, X(0), Y(0), 11 * s, SOFT);
+      ring(c, X(0), Y(0), 11 * s, INK, 1, a - Math.PI * 0.9, a);
+      accent(c, X(Math.cos(a) * 11), Y(Math.sin(a) * 11), beat);
+    },
+
+    // Design: a pen-tool curve; the handles breathe, the red control point leads.
+    design(c, w, h, t, beat) {
+      const { s, X, Y } = box(w, h);
+      const k = wave((t % LOOP) / LOOP);
+      const p0 = [-18, 12], p3 = [18, -12];
+      const p1 = [-8 + 4 * k, -16 + 10 * k], p2 = [8 - 4 * k, 16 - 10 * k];
+      const P = ([x, y]) => [X(x), Y(y)];
+      line(c, [P(p0), P(p1)], SOFT);
+      line(c, [P(p3), P(p2)], SOFT);
+      pen(c, INK); c.beginPath(); c.moveTo(...P(p0)); c.bezierCurveTo(...P(p1), ...P(p2), ...P(p3)); c.stroke();
+      const sq = 2.75 * Math.max(1, s * 0.9);
+      [p0, p3].forEach((p) => { const [x, y] = P(p); pen(c, INK); c.strokeRect(x - sq, y - sq, sq * 2, sq * 2); });
+      dot(c, ...P(p1));
+      accent(c, ...P(p2), beat);
+    },
+
+    // Product: three stacked screens in isometric; the stack opens and closes.
+    product(c, w, h, t, beat) {
+      const { X, Y } = box(w, h);
+      const k = ease(wave((t % LOOP) / LOOP));
+      const gap = 5 + 5 * k;
+      const rhomb = (cy, color, alpha) => line(c, [[X(0), Y(cy - 9)], [X(18), Y(cy)], [X(0), Y(cy + 9)], [X(-18), Y(cy)], [X(0), Y(cy - 9)]], color, alpha);
+      rhomb(gap, SOFT);
+      rhomb(0, INK);
+      rhomb(-gap, INK);
+      accent(c, X(0), Y(-gap), beat);
+    },
+
+    // Development: code types itself in, line by line, behind a red caret.
+    development(c, w, h, t, beat) {
+      const { X, Y } = box(w, h);
+      const u = (t % LOOP) / LOOP;
+      const rows = [[0, 24], [6, 20], [6, 26], [0, 14]];     // indent, length (units)
+      const typed = ease(clamp01(u / 0.75)) * rows.reduce((a, [, l]) => a + l, 0);
+      const fade = 1 - clamp01((u - 0.9) / 0.1);           // clear before the next loop
+      let left = typed, caret = null;
+      rows.forEach(([ind, len], i) => {
+        const y = -12 + i * 8, x0 = -18 + ind;
+        const n = Math.max(0, Math.min(len, left));
+        left -= len;
+        line(c, [[X(x0), Y(y)], [X(x0 + len), Y(y)]], SOFT, 0.5 * fade);
+        if (n > 0) line(c, [[X(x0), Y(y)], [X(x0 + n), Y(y)]], INK, fade);
+        if (!caret && n < len) caret = [x0 + n, y];         // caret sits where typing is
       });
+      caret = caret || [-18 + rows[3][1], 12];
+      accent(c, X(caret[0] + 3), Y(caret[1]), beat);
     },
 
-    // Mark: arcs on three orbits turning at different speeds around a pulsing core.
-    branding(c, w, h, t) {
-      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42;
-      c.lineCap = "round";
-      [[1, 0.6, 1.1, 3], [0.72, -0.9, 1.8, 2.5], [0.46, 1.4, 2.6, 2]].forEach(([r, sp, len, lw], i) => {
-        c.strokeStyle = i === 0 ? RED : white(0.75 - i * 0.2);
-        c.lineWidth = lw;
-        const s = t * sp + i;
-        c.beginPath(); c.arc(cx, cy, R * r, s, s + len); c.stroke();
-        c.strokeStyle = white(0.08); c.lineWidth = 1;
-        c.beginPath(); c.arc(cx, cy, R * r, 0, TAU); c.stroke();
-      });
-      const p = 1 + 0.12 * Math.sin(t * 2.4);
-      c.fillStyle = RED;
-      c.beginPath(); c.arc(cx, cy, R * 0.16 * p, 0, TAU); c.fill();
-      const o = t * 0.6;
-      c.fillStyle = "#fff";
-      c.beginPath(); c.arc(cx + Math.cos(o) * R, cy + Math.sin(o) * R, 3, 0, TAU); c.fill();
-    },
-
-    // Pen tool: a bezier whose handles drift, with anchors and control points shown.
-    design(c, w, h, t) {
-      const p0 = [w * 0.1, h * 0.72], p3 = [w * 0.9, h * 0.3];
-      const p1 = [w * (0.32 + 0.08 * Math.sin(t * 0.9)), h * (0.1 + 0.18 * Math.sin(t * 1.3))];
-      const p2 = [w * (0.62 + 0.08 * Math.cos(t * 1.1)), h * (0.92 - 0.2 * Math.sin(t * 1.7 + 1))];
-      c.strokeStyle = white(0.35); c.lineWidth = 1;
-      c.beginPath(); c.moveTo(...p0); c.lineTo(...p1); c.moveTo(...p3); c.lineTo(...p2); c.stroke();
-      c.strokeStyle = RED; c.lineWidth = 3; c.lineCap = "round";
-      c.beginPath(); c.moveTo(...p0); c.bezierCurveTo(...p1, ...p2, ...p3); c.stroke();
-      c.fillStyle = "#fff";
-      [p1, p2].forEach(([x, y]) => { c.beginPath(); c.arc(x, y, 3.5, 0, TAU); c.fill(); });
-      c.fillStyle = "#0c0c0c"; c.strokeStyle = "#fff"; c.lineWidth = 1.5;
-      [p0, p3].forEach(([x, y]) => { c.fillRect(x - 4.5, y - 4.5, 9, 9); c.strokeRect(x - 4.5, y - 4.5, 9, 9); });
-    },
-
-    // A wireframe cube turning in 3D with a red leading edge.
-    motion(c, w, h, t) {
-      const cx = w / 2, cy = h / 2, S = Math.min(w, h) * 0.24;
-      const ay = t * 0.8, ax = 0.55 + Math.sin(t * 0.5) * 0.3;
+    // Motion & 3D: a wireframe cube turns a quarter per loop; one red vertex.
+    motion(c, w, h, t, beat) {
+      const { X, Y } = box(w, h);
+      const u = (t % LOOP) / LOOP;
+      const ay = Math.floor(t / LOOP) * (Math.PI / 2) + ease(u) * (Math.PI / 2) + 0.5;
+      const ax = 0.55;
+      const S = 11;
       const pts = [];
       for (let i = 0; i < 8; i++) {
         let x = i & 1 ? 1 : -1, y = i & 2 ? 1 : -1, z = i & 4 ? 1 : -1;
         [x, z] = [x * Math.cos(ay) - z * Math.sin(ay), x * Math.sin(ay) + z * Math.cos(ay)];
         [y, z] = [y * Math.cos(ax) - z * Math.sin(ax), y * Math.sin(ax) + z * Math.cos(ax)];
-        const k = 3.2 / (3.2 + z);
-        pts.push([cx + x * S * k, cy + y * S * k, z]);
+        const p = 3.6 / (3.6 + z);
+        pts.push([X(x * S * p), Y(y * S * p), z]);
       }
-      const edges = [[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];
-      edges.forEach(([a, b], i) => {
-        const depth = (pts[a][2] + pts[b][2]) / 2;
-        c.strokeStyle = i === 0 ? RED : white(0.3 + 0.4 * (1 - (depth + 1) / 2));
-        c.lineWidth = i === 0 ? 2.5 : 1.5;
-        c.beginPath(); c.moveTo(pts[a][0], pts[a][1]); c.lineTo(pts[b][0], pts[b][1]); c.stroke();
+      const edges = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+      edges.forEach(([a, b]) => {
+        const back = (pts[a][2] + pts[b][2]) / 2 > 0.2;
+        line(c, [pts[a], pts[b]], back ? SOFT : INK);
       });
-      pts.forEach(([x, y]) => { c.fillStyle = "#fff"; c.beginPath(); c.arc(x, y, 2, 0, TAU); c.fill(); });
+      const front = pts.reduce((m, p) => (p[2] < m[2] ? p : m));
+      accent(c, front[0], front[1], beat);
     },
 
-    // Stacked screens floating apart and back, drawn in isometric.
-    product(c, w, h, t) {
-      const cx = w / 2, cy = h * 0.56, S = Math.min(w, h) * 0.3;
-      const spread = 0.5 + 0.5 * Math.sin(t * 1.1);
-      for (let i = 2; i >= 0; i--) {
-        const y = cy - i * (S * 0.28 + spread * S * 0.22);
-        c.save();
-        c.translate(cx, y);
-        c.scale(1, 0.55);
-        c.rotate(Math.PI / 4);
-        c.fillStyle = i === 0 ? red(0.9) : `rgba(22, 22, 22, 0.92)`;
-        c.strokeStyle = i === 0 ? RED : white(0.45);
-        c.lineWidth = 1.5;
-        c.beginPath();
-        c.roundRect(-S / 2, -S / 2, S, S, 6);
-        c.fill(); c.stroke();
-        c.restore();
+    // Promotion: a signal source sending three rings outward.
+    promotion(c, w, h, t, beat) {
+      const { s, X, Y } = box(w, h);
+      const u = (t % LOOP) / LOOP;
+      for (let i = 0; i < 3; i++) {
+        const f = (u + i / 3) % 1;
+        const r = (8 + ease(f) * 28) * s;
+        ring(c, X(-14), Y(0), r, INK, 0.9 * (1 - f), -0.9, 0.9);
       }
+      line(c, [[X(-14), Y(-14)], [X(-14), Y(14)]], SOFT);
+      accent(c, X(-14), Y(0), beat);
     },
 
-    // Code being typed: indented lines grow, a cursor blinks at the end.
-    development(c, w, h, t) {
-      const lines = [[0, 0.55], [1, 0.4], [2, 0.5], [2, 0.3], [1, 0.2], [0, 0.35]];
-      const x0 = w * 0.12, lh = h * 0.12, y0 = h * 0.18, unit = w * 0.1;
-      const cycle = 5.5, prog = (t % cycle) / cycle * (lines.length + 1.5);
-      c.lineCap = "round"; c.lineWidth = Math.max(3, h * 0.045);
-      lines.forEach(([ind, len], i) => {
-        const f = Math.max(0, Math.min(1, prog - i));
-        if (!f) return;
-        const x = x0 + ind * unit, y = y0 + i * lh * 1.25, L = len * w * 0.75 * f;
-        c.strokeStyle = i % 3 === 0 ? RED : white(0.55);
-        c.beginPath(); c.moveTo(x, y); c.lineTo(x + L, y); c.stroke();
-        if (f < 1 || i === lines.length - 1) {
-          if (Math.sin(t * 8) > 0 || f < 1) { c.fillStyle = "#fff"; c.fillRect(x + L + 6, y - lh * 0.35, 2, lh * 0.7); }
-        }
-      });
-    },
-
-    // Broadcast rings from a source, plus a small chart climbing on the right.
-    promotion(c, w, h, t) {
-      const sx = w * 0.22, sy = h * 0.55, R = Math.min(w * 0.5, h) * 0.45;
-      for (let i = 0; i < 4; i++) {
-        const f = (t * 0.45 + i / 4) % 1;
-        c.strokeStyle = red(0.9 * (1 - f)); c.lineWidth = 2;
-        c.beginPath(); c.arc(sx, sy, 6 + f * R, -Math.PI * 0.35, Math.PI * 0.35); c.stroke();
-      }
-      c.fillStyle = RED; c.beginPath(); c.arc(sx, sy, 5, 0, TAU); c.fill();
-      const bars = 6, bw = w * 0.045, gx = w * 0.56, base = h * 0.82;
-      for (let i = 0; i < bars; i++) {
-        const v = 0.25 + i * 0.12 + 0.08 * Math.sin(t * 1.6 + i);
-        c.fillStyle = i === bars - 1 ? RED : white(0.18 + i * 0.07);
-        c.beginPath(); c.roundRect(gx + i * bw * 1.5, base - v * h * 0.7, bw, v * h * 0.7, 3); c.fill();
-      }
-    },
-
-    // A small neural net: layers of nodes, signals travelling along the links.
-    ai(c, w, h, t) {
+    // AI: a small neural net; signals travel layer by layer, the output beats red.
+    ai(c, w, h, t, beat) {
+      const pad = Math.min(w, h) * 0.12;
+      const u = (t % LOOP) / LOOP;
       const layers = [3, 5, 5, 3, 1];
+      const gapY = Math.min((h - pad * 2) / 5, 46);
       const nodes = layers.map((n, li) => Array.from({ length: n }, (_, i) => [
-        w * (0.1 + 0.8 * li / (layers.length - 1)),
-        h * (0.5 + (i - (n - 1) / 2) * Math.min(0.18, 0.8 / n)) + Math.sin(t * 0.8 + li + i) * 3,
+        pad + (w - pad * 2) * (li / (layers.length - 1)),
+        h / 2 + (i - (n - 1) / 2) * gapY,
       ]));
-      c.lineWidth = 1;
       for (let li = 0; li < nodes.length - 1; li++) {
         nodes[li].forEach((a, i) => nodes[li + 1].forEach((b, j) => {
-          c.strokeStyle = white(0.07);
-          c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke();
-          // A pulse on some links, staggered so signals ripple through the net.
-          const seed = (li * 7 + i * 3 + j * 5) % 11;
-          if (seed > 5) return;
-          const f = (t * 0.55 + seed / 6 + li * 0.18) % 1;
-          const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
-          c.strokeStyle = red(0.55);
-          c.beginPath(); c.moveTo(x - (b[0] - a[0]) * 0.12, y - (b[1] - a[1]) * 0.12); c.lineTo(x, y); c.stroke();
-          c.fillStyle = RED; c.beginPath(); c.arc(x, y, 2.2, 0, TAU); c.fill();
+          line(c, [a, b], SOFT, 0.45);
+          // One signal per link, released in waves: each layer fires a step later.
+          if ((i * 7 + j * 3 + li) % 3) return;
+          let f = u - li * 0.16 - ((i + j) % 3) * 0.04;
+          f = (f - Math.floor(f)) / 0.45;                  // travel in the first part of the loop
+          if (f >= 1) return;
+          const e = ease(f);
+          dot(c, a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e, DOT, INK, 0.9);
         }));
       }
-      nodes.forEach((layer, li) => layer.forEach(([x, y], i) => {
-        const glow = 0.5 + 0.5 * Math.sin(t * 2 - li * 0.9 + i);
-        const last = li === nodes.length - 1;
-        c.fillStyle = last ? RED : "#0c0c0c";
-        c.strokeStyle = last ? RED : white(0.35 + 0.5 * glow);
-        c.lineWidth = 1.5;
-        c.beginPath(); c.arc(x, y, last ? 9 + glow * 3 : 5, 0, TAU); c.fill(); c.stroke();
-        if (last) { c.fillStyle = red(0.18); c.beginPath(); c.arc(x, y, 22 + glow * 8, 0, TAU); c.fill(); }
+      nodes.forEach((layer, li) => layer.forEach(([x, y]) => {
+        if (li === nodes.length - 1) return;
+        c.fillStyle = "#0b0b0b";
+        c.beginPath(); c.arc(x, y, 4.5, 0, TAU); c.fill();
+        ring(c, x, y, 4.5, INK);
       }));
+      const [ox, oy] = nodes[nodes.length - 1][0];
+      ring(c, ox, oy, 11, SOFT);
+      accent(c, ox, oy, beat, 5);
     },
   };
 
   /* Canvas sizing at device resolution. */
-  const items = canvases.map((cv) => ({ cv, ctx: cv.getContext("2d"), draw: ICONS[cv.dataset.icon], w: 0, h: 0, on: false, speed: 1, t: Math.random() * 10 }));
+  const items = canvases.map((cv) => ({ cv, ctx: cv.getContext("2d"), draw: ICONS[cv.dataset.icon], tile: cv.closest(".bento-tile"), w: 0, h: 0, on: false, speed: 1, t: 0 }));
   const fit = (it) => {
     const r = it.cv.getBoundingClientRect();
     const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -190,7 +211,11 @@
     it.cv.height = Math.max(1, Math.round(r.height * dpr));
     it.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
-  const paint = (it) => { if (!it.draw || !it.w) return; it.ctx.clearRect(0, 0, it.w, it.h); it.draw(it.ctx, it.w, it.h, it.t); };
+  const paint = (it) => {
+    if (!it.draw || !it.w) return;
+    it.ctx.clearRect(0, 0, it.w, it.h);
+    it.draw(it.ctx, it.w, it.h, it.t, it.tile ? it.tile._beat || 0 : 0);
+  };
 
   const ro = new ResizeObserver((entries) => entries.forEach((en) => {
     const it = items.find((i) => i.cv === en.target);
@@ -215,7 +240,7 @@
   // Hover speeds the tile's icon up; only visible icons animate.
   items.forEach((it) => {
     const tile = it.cv.closest(".bento-tile");
-    tile.addEventListener("mouseenter", () => { it.target = 2.2; });
+    tile.addEventListener("mouseenter", () => { it.target = 1.6; });
     tile.addEventListener("mouseleave", () => { it.target = 1; });
   });
   const vis = new IntersectionObserver((entries) => entries.forEach((en) => {
@@ -230,9 +255,8 @@
     for (const it of items) {
       if (!it.on) continue;
       it.speed += ((it.target || 1) - it.speed) * Math.min(1, dt * 4);
-      // Each heartbeat reaching the tile gives its icon a short push forward.
-      it.tile = it.tile || it.cv.closest(".bento-tile");
-      it.t += dt * it.speed * (1 + 1.6 * (it.tile._beat || 0));
+      // One clock for every icon; the heartbeat only swells each icon's red accent.
+      it.t += dt * it.speed;
       paint(it);
     }
     requestAnimationFrame(loop);
