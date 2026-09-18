@@ -52,7 +52,7 @@ const heartbeat = (() => {
 })();
 
 /* ---------- Glass lens cursor ----------
-   A red dot tracks the mouse exactly. Around it trails a lens of frosted glass:
+   A lens of frosted glass trails the mouse:
    it blurs, brightens and saturates what is underneath, carries a turning
    red-orange gradient rim with a faint chromatic fringe, and behaves like a
    drop of liquid: fast moves stretch it along the direction of travel, then it
@@ -60,13 +60,10 @@ const heartbeat = (() => {
    buttons. Over text fields the native caret returns. Mouse only, never with
    reduced motion. */
 if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) {
-  const dot = document.createElement("div");
   const lens = document.createElement("div");
-  dot.className = "cur-dot";
   lens.className = "cur-ring";
-  dot.setAttribute("aria-hidden", "true");
   lens.setAttribute("aria-hidden", "true");
-  document.body.append(lens, dot);
+  document.body.append(lens);
   document.documentElement.classList.add("has-cursor");
 
   let mx = -100, my = -100, lx = -100, ly = -100, vx = 0, vy = 0;
@@ -88,7 +85,7 @@ if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) 
   addEventListener("pointerup", () => { press = 0; });
 
   const loop = () => {
-    // The lens trails the dot; its velocity drives the squash-and-stretch.
+    // The lens trails the pointer; its velocity drives the squash-and-stretch.
     const nx = lx + (mx - lx) * 0.22, ny = ly + (my - ly) * 0.22;
     vx += (nx - lx - vx) * 0.35;
     vy += (ny - ly - vy) * 0.35;
@@ -107,7 +104,6 @@ if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) 
       ` scale(${(1 + stretch).toFixed(3)}, ${(1 - stretch * 0.45).toFixed(3)})`;
     lens.style.setProperty("--tint", (0.05 + grow * 0.12 + b * 0.08).toFixed(3));
     lens.style.setProperty("--glow", (0.25 + b * 0.75 + grow * 0.3).toFixed(3));
-    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${(1 - grow * 0.55 + b * 0.5).toFixed(3)})`;
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);

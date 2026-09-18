@@ -59,7 +59,6 @@ img { display: block; }
 .has-cursor,
 .has-cursor * { cursor: none !important; }
 .has-cursor :is(input:not([type=range]):not([type=radio]):not([type=checkbox]), textarea, select) { cursor: text !important; }
-.cur-dot,
 .cur-ring {
   position: fixed;
   top: 0;
@@ -71,7 +70,6 @@ img { display: block; }
   transition: opacity .25s;
   will-change: transform;
 }
-.cur-dot { width: 6px; height: 6px; background: #ff3b2a; box-shadow: 0 0 10px rgba(255, 59, 42, .9); }
 /* Lens: frosted glass that refracts the page's colour, with a gradient rim. */
 @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 .cur-ring {
@@ -102,10 +100,8 @@ img { display: block; }
   animation: cur-spin 3.2s linear infinite;
 }
 @keyframes cur-spin { to { --spin: 360deg; } }
-.cur-on .cur-dot,
 .cur-on .cur-ring { opacity: 1; }
 /* Over text fields the native caret takes over. */
-.cur-text .cur-dot,
 .cur-text .cur-ring { opacity: 0; }
 
 /* ---------- Page transitions (cross-document View Transitions, where supported) ---------- */
