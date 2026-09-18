@@ -1172,6 +1172,25 @@ main { position: relative; }
   .case-meta { flex-wrap: wrap; }
 }
 
+/* ---------- 404: flatline ---------- */
+.nf {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 100vh;
+  padding: calc(var(--nav-h) + 24px) var(--inset) 48px;
+  overflow: hidden;
+}
+.nf-line { position: absolute; inset: 0; width: 100%; height: 100%; }
+.nf-text { position: relative; display: grid; gap: 24px; justify-items: start; max-width: 900px; }
+.nf-code {
+  font: 400 12px/1 "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #ff3b2a;
+}
+.nf-actions { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+
 /* ---------- Reveal on scroll ---------- */
 .reveal { opacity: 0; transform: translateY(40px); transition: opacity .9s, transform .9s cubic-bezier(.2, .8, .2, 1); }
 .reveal.in { opacity: 1; transform: none; }
