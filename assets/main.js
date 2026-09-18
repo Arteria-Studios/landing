@@ -38,37 +38,46 @@ const PROJECTS = [
 }
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- Heartbeat cursor ----------
-   A red dot follows the mouse exactly; a thin ring trails it with a little
-   inertia and beats in the page's rhythm (pulse.js, or the same lub-dub shape
-   on pages without it). Over links and buttons the ring opens up; over text
-   fields the native caret comes back. Mouse-only, never with reduced motion. */
-if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) {
-  const dot = document.createElement("div");
-  const ring = document.createElement("div");
-  dot.className = "cur-dot";
-  ring.className = "cur-ring";
-  dot.setAttribute("aria-hidden", "true");
-  ring.setAttribute("aria-hidden", "true");
-  document.body.append(ring, dot);
-  document.documentElement.classList.add("has-cursor");
-
+/* Shared heartbeat 0..1: from pulse.js when the page has it, otherwise the same
+   lub-dub shape at 54 BPM, so every page beats in one rhythm. */
+const heartbeat = (() => {
   const PERIOD = 60 / 54;
   const t0 = performance.now();
   const env = (p) => Math.min(1, Math.exp(-(((p - 0.08) * 22) ** 2)) + 0.6 * Math.exp(-(((p - 0.24) * 22) ** 2)));
-  const beat = () => {
+  return () => {
     if (window.Pulse) return window.Pulse.at(0);
     const x = (performance.now() - t0) / 1000 / PERIOD;
     return env(x - Math.floor(x));
   };
+})();
 
-  let mx = -100, my = -100, rx = -100, ry = -100, grow = 0, target = 0, press = 0, shown = false;
+/* ---------- Glass lens cursor ----------
+   A red dot tracks the mouse exactly. Around it trails a lens of frosted glass:
+   it blurs, brightens and saturates what is underneath, carries a turning
+   red-orange gradient rim with a faint chromatic fringe, and behaves like a
+   drop of liquid: fast moves stretch it along the direction of travel, then it
+   springs back round. It swells on every heartbeat and opens up over links and
+   buttons. Over text fields the native caret returns. Mouse only, never with
+   reduced motion. */
+if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) {
+  const dot = document.createElement("div");
+  const lens = document.createElement("div");
+  dot.className = "cur-dot";
+  lens.className = "cur-ring";
+  dot.setAttribute("aria-hidden", "true");
+  lens.setAttribute("aria-hidden", "true");
+  document.body.append(lens, dot);
+  document.documentElement.classList.add("has-cursor");
+
+  let mx = -100, my = -100, lx = -100, ly = -100, vx = 0, vy = 0;
+  let grow = 0, target = 0, press = 0, pressS = 0, shown = false;
+  let stretch = 0, angle = 0;
   const INTERACTIVE = "a, button, [role=button], .chip, .seg, label, summary";
   const TEXT = "input:not([type=range]):not([type=radio]):not([type=checkbox]), textarea, select";
 
   addEventListener("pointermove", (e) => {
     mx = e.clientX; my = e.clientY;
-    if (!shown) { rx = mx; ry = my; shown = true; document.documentElement.classList.add("cur-on"); }
+    if (!shown) { lx = mx; ly = my; shown = true; document.documentElement.classList.add("cur-on"); }
     const el = e.target instanceof Element ? e.target : null;
     const onText = !!el?.closest(TEXT);
     document.documentElement.classList.toggle("cur-text", onText);
@@ -79,17 +88,26 @@ if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) 
   addEventListener("pointerup", () => { press = 0; });
 
   const loop = () => {
-    rx += (mx - rx) * 0.2;
-    ry += (my - ry) * 0.2;
-    grow += (target - grow) * 0.18;
-    const b = beat();
-    // Ring: 34px at rest, 64px over interactive elements, a small swell on every beat.
-    const size = (34 + 30 * grow) * (1 + b * 0.14) * (1 - press * 0.15);
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-    ring.style.width = ring.style.height = `${size.toFixed(1)}px`;
-    ring.style.setProperty("--fill", (grow * 0.18 + b * 0.06).toFixed(3));
-    ring.style.setProperty("--edge", (0.35 + b * 0.5).toFixed(3));
-    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${(1 - grow * 0.6 + b * 0.5).toFixed(3)})`;
+    // The lens trails the dot; its velocity drives the squash-and-stretch.
+    const nx = lx + (mx - lx) * 0.22, ny = ly + (my - ly) * 0.22;
+    vx += (nx - lx - vx) * 0.35;
+    vy += (ny - ly - vy) * 0.35;
+    lx = nx; ly = ny;
+    const speed = Math.hypot(vx, vy);
+    stretch += (Math.min(0.5, speed * 0.018) - stretch) * 0.25;
+    if (speed > 0.4) angle = Math.atan2(vy, vx);
+    grow += (target - grow) * 0.16;
+    pressS += (press - pressS) * 0.3;
+
+    const b = heartbeat();
+    const size = (40 + 40 * grow) * (1 + b * 0.12) * (1 - pressS * 0.18);
+    lens.style.width = lens.style.height = `${size.toFixed(1)}px`;
+    lens.style.transform =
+      `translate(${lx.toFixed(1)}px, ${ly.toFixed(1)}px) translate(-50%, -50%) rotate(${angle.toFixed(3)}rad)` +
+      ` scale(${(1 + stretch).toFixed(3)}, ${(1 - stretch * 0.45).toFixed(3)})`;
+    lens.style.setProperty("--tint", (0.05 + grow * 0.12 + b * 0.08).toFixed(3));
+    lens.style.setProperty("--glow", (0.25 + b * 0.75 + grow * 0.3).toFixed(3));
+    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${(1 - grow * 0.55 + b * 0.5).toFixed(3)})`;
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);

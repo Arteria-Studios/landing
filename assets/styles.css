@@ -71,13 +71,37 @@ img { display: block; }
   transition: opacity .25s;
   will-change: transform;
 }
-.cur-dot { width: 6px; height: 6px; background: #ff3b2a; }
+.cur-dot { width: 6px; height: 6px; background: #ff3b2a; box-shadow: 0 0 10px rgba(255, 59, 42, .9); }
+/* Lens: frosted glass that refracts the page's colour, with a gradient rim. */
+@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 .cur-ring {
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(255, 255, 255, var(--edge, .35));
-  background: rgba(255, 59, 42, var(--fill, 0));
+  width: 40px;
+  height: 40px;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .26), rgba(255, 255, 255, .05) 38%, transparent 60%),
+    radial-gradient(circle at 60% 70%, rgba(255, 59, 42, var(--tint, .05)), rgba(255, 59, 42, calc(var(--tint, .05) * .4)) 70%);
+  -webkit-backdrop-filter: blur(3px) saturate(1.9) brightness(1.18) contrast(1.05);
+          backdrop-filter: blur(3px) saturate(1.9) brightness(1.18) contrast(1.05);
+  box-shadow:
+    inset 1.5px 0 0 rgba(255, 70, 50, .55),
+    inset -1.5px 0 0 rgba(90, 200, 255, .35),
+    inset 0 -6px 14px rgba(255, 59, 42, .22),
+    0 8px 30px rgba(255, 59, 42, calc(var(--glow, .3) * .45));
 }
+/* Turning gradient rim, drawn as a ring with a mask. */
+.cur-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: 50%;
+  background: conic-gradient(from var(--spin), #ff3b2a, #ff8a3d, rgba(255, 255, 255, .95), rgba(255, 59, 42, .15) 55%, transparent 70%, #ff3b2a);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: cur-spin 3.2s linear infinite;
+}
+@keyframes cur-spin { to { --spin: 360deg; } }
 .cur-on .cur-dot,
 .cur-on .cur-ring { opacity: 1; }
 /* Over text fields the native caret takes over. */
@@ -980,6 +1004,10 @@ a:hover .roll span { transform: translateY(-100%); }
   color: rgba(255, 255, 255, .6);
 }
 .foot-bottom a:hover { color: #ff3b2a; }
+/* WebGL wordmark (footmark.js) draws over the CSS text, which stays for no-WebGL. */
+.foot-mark { position: relative; }
+.foot-mark.is-gl { color: transparent; }
+.foot-mark-gl { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* Giant wordmark, cut by the bottom edge of the page. */
 .foot-mark {
   margin: 12px 0 -0.24em;
