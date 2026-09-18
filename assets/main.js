@@ -38,10 +38,39 @@ const PROJECTS = [
 }
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ---------- Mobile menu ---------- */
+{
+  const btn = document.querySelector(".nav-menu");
+  const menu = document.getElementById("menu");
+  if (btn && menu) {
+    const setOpen = (open) => {
+      btn.setAttribute("aria-expanded", String(open));
+      document.documentElement.style.overflow = open ? "hidden" : "";
+      if (open) {
+        menu.hidden = false;
+        requestAnimationFrame(() => menu.classList.add("is-open"));
+        menu.querySelector("a")?.focus({ preventScroll: true });
+      } else {
+        menu.classList.remove("is-open");
+        setTimeout(() => { if (btn.getAttribute("aria-expanded") === "false") menu.hidden = true; }, 600);
+      }
+    };
+    btn.addEventListener("click", () => setOpen(btn.getAttribute("aria-expanded") !== "true"));
+    menu.addEventListener("click", (e) => { if (e.target.closest("a")) setOpen(false); });
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") { setOpen(false); btn.focus(); }
+    });
+  }
+}
+
 /* Project media: a muted looping video (started only on screen) or a still image. */
 const media = (p, alt, eager = false) => p.video
   ? `<video muted loop playsinline preload="none" poster="${IMG + p.img}" data-src="${IMG + p.video}" aria-label="${esc(alt)}"></video>`
   : `<img src="${IMG + p.img}" alt="${esc(alt)}" loading="${eager ? "eager" : "lazy"}">`;
+
+/* Case study address for a project: project.html?p=<slug>. */
+const slugOf = (p) => p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const caseUrl = (p) => `project.html?p=${slugOf(p)}`;
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -53,7 +82,7 @@ if (grid) {
   const pad = (n) => String(n).padStart(2, "0");
   if (pc) pc.textContent = `(${pad(Math.min(HOME_PROJECTS, PROJECTS.length))} / ${pad(PROJECTS.length)})`;
   grid.innerHTML = PROJECTS.slice(0, HOME_PROJECTS).map(
-    (p) => `<a class="card" href="#" data-beat>
+    (p) => `<a class="card" href="${caseUrl(p)}" data-beat>
       <div class="card-media"><div class="card-pan">${media(p, p.home)}</div></div>
       <div class="card-meta">
         <span class="card-tags">${esc(p.tag)}</span>
@@ -208,14 +237,14 @@ if (works) {
   const idxEl = works.querySelector("[data-idx]");
   const tagEl = works.querySelector("[data-tag]");
 
-  namesEl.innerHTML = PROJECTS.map((p, i) => `<a class="wk-name" href="#" data-i="${i}">${esc(p.title)}</a>`).join("");
+  namesEl.innerHTML = PROJECTS.map((p, i) => `<a class="wk-name" href="${caseUrl(p)}" data-i="${i}">${esc(p.title)}</a>`).join("");
   const numsEl = document.createElement("div");
   numsEl.className = "wk-nums";
   numsEl.setAttribute("aria-hidden", "true");
   numsEl.innerHTML = PROJECTS.map((_, i) => `<span class="wk-num">${String(i + 1).padStart(3, "0")}</span>`).join("");
   namesEl.before(numsEl);
   imgsEl.innerHTML = PROJECTS.map((p, i) =>
-    `<a class="wk-img" href="#" data-i="${i}">${media(p, p.title, i < 4)}</a>`
+    `<a class="wk-img" href="${caseUrl(p)}" data-i="${i}">${media(p, p.title, i < 4)}</a>`
   ).join("");
   const names = [...namesEl.children];
   const imgs = [...imgsEl.children];
@@ -318,11 +347,14 @@ if (works) {
     vel += Math.sign(d) * Math.min(Math.abs(d), WHEEL_CAP) * WHEEL_GAIN;
   }, { passive: false });
 
+  // First click brings a project into focus; clicking the focused one opens its case.
   const goTo = (e) => {
     const a = e.target.closest("[data-i]");
     if (!a) return;
+    const i = Number(a.dataset.i);
+    if (i === Math.round(current)) return;          // let the link open the case study
     e.preventDefault();
-    scrollTo({ top: works.offsetTop + Number(a.dataset.i) * step, behavior: "smooth" });
+    scrollTo({ top: works.offsetTop + i * step, behavior: "smooth" });
   };
   namesEl.addEventListener("click", goTo);
   imgsEl.addEventListener("click", goTo);

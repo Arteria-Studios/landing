@@ -11,17 +11,21 @@
   const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, powerPreference: "high-performance" });
   if (!gl) { canvas.classList.add("is-fallback"); return; }
 
-  const RINGS = 200;      // rings along the main vessel
-  const SEG = 48;         // vertices around each ring
-  const SPACING = 0.32;   // distance between rings
-  const SPEED = 0.55;     // flight speed through the vessel (units per second)
-  const CELLS = 900;      // particles drifting in the bloodstream
+  // Quality tier: phones and weaker machines get a lighter mesh, fewer particles,
+  // lower resolution and no MSAA. The look stays the same, the load drops ~2x.
+  const LITE = innerWidth < 810 || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  const RINGS = LITE ? 150 : 200;       // rings along the main vessel
+  const SEG = LITE ? 32 : 48;           // vertices around each ring
+  const SPACING = LITE ? 0.42 : 0.32;   // distance between rings (same total length)
+  const SPEED = 0.55;                   // flight speed through the vessel (units per second)
+  const CELLS = LITE ? 380 : 900;       // particles drifting in the bloodstream
+  let maxDpr = LITE ? 1.25 : 1.75;      // lowered further at runtime if frames run slow
   const RADIUS = 1.0;     // base vessel radius
   const FOV = 72 * Math.PI / 180;
   const FAR = RINGS * SPACING;
 
   // Side branches ("alternative tunnels") splitting off the main vessel.
-  const BR_SLOTS = 11;      // branch meshes alive at once
+  const BR_SLOTS = LITE ? 8 : 11;      // branch meshes alive at once
   const BR_EVERY = 6.0;     // one branch candidate per this much path length
   const BR_RINGS = 44;
   const BR_SEG = 24;
@@ -431,7 +435,7 @@
   gl.bindVertexArray(null);
 
   /* ---------- Render targets ---------- */
-  const samples = Math.min(4, gl.getParameter(gl.MAX_SAMPLES));
+  const samples = LITE ? 0 : Math.min(4, gl.getParameter(gl.MAX_SAMPLES));
   let W = 1, H = 1, msFbo, msRb, lineTex, blurA, blurB;
 
   const makeTarget = (w, h) => {
@@ -451,7 +455,7 @@
 
   const resize = () => {
     const r = canvas.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio || 1, 1.75);
+    const dpr = Math.min(devicePixelRatio || 1, maxDpr);
     W = canvas.width = Math.max(1, Math.round(r.width * dpr));
     H = canvas.height = Math.max(1, Math.round(r.height * dpr));
 
@@ -492,6 +496,7 @@
   /* ---------- Frame ---------- */
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let visible = true, raf = 0, last = 0, time = 0, travel = 40;
+  const probe = { n: 0, sum: 0 };
 
   const blur = (src, dst, dx, dy) => {
     gl.bindFramebuffer(gl.FRAMEBUFFER, dst.fbo);
@@ -563,7 +568,7 @@
       gl.uniform1f(P.u.uBeatPhase, beatPhase);
     };
     setShared(nodeP);
-    gl.uniform1f(nodeP.u.uNodeSize, Math.min(devicePixelRatio || 1, 1.75) * 1.6);
+    gl.uniform1f(nodeP.u.uNodeSize, Math.min(devicePixelRatio || 1, maxDpr) * 1.6);
     gl.bindVertexArray(nodeVAO);
     gl.drawArrays(gl.POINTS, 0, RINGS * SEG);
 
@@ -620,6 +625,11 @@
     gl.uniform1f(compP.u.uBeat, window.Pulse ? window.Pulse.at(0) : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
+    // Adaptive resolution: if the first ~2 seconds average under ~45 fps, render smaller.
+    if (probe.n < 120) {
+      probe.sum += dt; probe.n++;
+      if (probe.n === 120 && probe.sum / 120 > 1 / 45 && maxDpr > 1) { maxDpr = Math.max(1, maxDpr - 0.5); resize(); }
+    }
     raf = visible && !still ? requestAnimationFrame(frame) : 0;
   };
 

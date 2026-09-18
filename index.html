@@ -3,11 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ArteriaStudios</title>
+  <title>ArteriaStudios — Brands, products and digital worlds</title>
+  <meta name="description" content="Design and technology studio. 14+ years, 60+ projects: brand identity, product design, web and app development, AI products and motion.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <!-- Social previews. After deploy, make og:image an absolute URL and add og:url / canonical. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ArteriaStudios">
+  <meta property="og:title" content="ArteriaStudios — Brands, products and digital worlds">
+  <meta property="og:description" content="Design and technology studio. 14+ years, 60+ projects: brand identity, product design, web and app development, AI products and motion.">
+  <meta property="og:image" content="assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20">
+  <link rel="stylesheet" href="assets/styles.css?v=21">
   <script>
     /* Decide before first paint whether the ECG intro plays: once per session,
        never with reduced motion. */
@@ -20,6 +33,7 @@
   </script>
 </head>
 <body id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="intro-overlay" aria-hidden="true">
     <div class="intro-half intro-top"></div>
     <div class="intro-half intro-bottom"></div>
@@ -31,11 +45,26 @@
   <nav class="nav">
     <a href="index.html"><span class="roll"><span>ArteriaStudios</span><span>ArteriaStudios</span></span></a>
     <a href="works.html"><span class="roll"><span>Works</span><span>Works</span></span></a>
-    <a href="#"><span class="roll"><span>About</span><span>About</span></span></a>
+    <a href="about.html"><span class="roll"><span>About</span><span>About</span></span></a>
     <a href="#contact"><span class="roll"><span>Let’s Talk</span><span>Let’s Talk</span></span></a>
+    <button class="nav-menu" type="button" aria-expanded="false" aria-controls="menu"><span class="roll"><span>Menu</span><span>Close</span></span></button>
   </nav>
 
-  <main>
+  <!-- Full-screen menu for small screens -->
+  <div class="menu" id="menu" hidden>
+    <nav class="menu-links" aria-label="Main">
+      <a href="#top">Home</a>
+      <a href="works.html">Works</a>
+      <a href="about.html">About</a>
+      <a href="#contact">Start a project</a>
+    </nav>
+    <div class="menu-foot">
+      <span data-mail>name@email.com</span>
+      <span><a href="https://www.instagram.com/">Instagram</a> · <a href="https://www.twitter.com/">Twitter</a> · <a href="https://www.linkedin.com/">LinkedIn</a></span>
+    </div>
+  </div>
+
+  <main id="main">
     <!-- Red thread: the "vessel" connecting sections; drawn and pulsed by pulse.js -->
     <div class="thread" data-thread aria-hidden="true"><i class="thread-fill"></i><b class="thread-pulse"></b></div>
     <section class="hx">
@@ -221,11 +250,11 @@
   </main>
 
   <script>document.querySelectorAll("[data-year]").forEach(e => e.textContent = new Date().getFullYear());</script>
-  <script src="assets/main.js?v=20"></script>
-  <script src="assets/wormhole.js?v=20"></script>
-  <script src="assets/services.js?v=20"></script>
-  <script src="assets/pulse.js?v=20"></script>
-  <script src="assets/intro.js?v=20"></script>
-  <script src="assets/brief.js?v=20"></script>
+  <script src="assets/main.js?v=21"></script>
+  <script src="assets/wormhole.js?v=21"></script>
+  <script src="assets/services.js?v=21"></script>
+  <script src="assets/pulse.js?v=21"></script>
+  <script src="assets/intro.js?v=21"></script>
+  <script src="assets/brief.js?v=21"></script>
 </body>
 </html>
