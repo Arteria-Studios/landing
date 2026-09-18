@@ -7,9 +7,16 @@
    the Arteria palette. */
 (() => {
   const canvas = document.querySelector("[data-wormhole]");
-  if (!canvas) return;
+  // Tells the intro (intro.js) that the hero can be shown: first frame drawn, or
+  // the static fallback is in place.
+  const heroReady = () => {
+    if (window.__heroReady) return;
+    window.__heroReady = true;
+    dispatchEvent(new Event("hero-ready"));
+  };
+  if (!canvas) { heroReady(); return; }
   const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, powerPreference: "high-performance" });
-  if (!gl) { canvas.classList.add("is-fallback"); return; }
+  if (!gl) { canvas.classList.add("is-fallback"); heroReady(); return; }
 
   // Quality tier: phones and weaker machines get a lighter mesh, fewer particles,
   // lower resolution and no MSAA. The look stays the same, the load drops ~2x.
@@ -332,7 +339,7 @@
     compP = program(quadVS, compFS);
   } catch (err) {
     console.error(err);
-    canvas.classList.add("is-fallback");
+    canvas.classList.add("is-fallback"); heroReady();
     return;
   }
 
@@ -624,6 +631,7 @@
     gl.uniform1f(compP.u.uEnergy, mouse.energy);
     gl.uniform1f(compP.u.uBeat, window.Pulse ? window.Pulse.at(0) : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    heroReady();
 
     // Adaptive resolution: if the first ~2 seconds average under ~45 fps, render smaller.
     if (probe.n < 120) {

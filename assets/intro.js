@@ -27,14 +27,43 @@
   fit();
   addEventListener("resize", fit);
 
-  /* ---------- Timing: the beat lands on the shared heartbeat ---------- */
+  /* ---------- Timing: the heart starts when the hero is really ready ----------
+     Ready = web fonts loaded + the WebGL artery has drawn its first frame
+     (wormhole.js fires "hero-ready"). Until then the line just breathes. Once
+     ready, the beat lands on the next shared heartbeat (pulse.js), at least ~1.1s
+     in so the line is seen first. A slow connection never blocks: after
+     MAX_WAIT the intro opens anyway. */
   const P = window.Pulse;
   const period = P ? P.PERIOD : 60 / 54;
-  let wait = P ? (1 - P.phase(0) + 0.08) * period : 1.2;   // pulse.js peaks at phase 0.08
-  while (wait < 1.1) wait += period;
-  const T_BEAT = wait;                 // seconds from start to the first beat's peak
-  const T_SETTLE = T_BEAT + 1.05;      // strands merge into one line
-  const T_OPEN = T_SETTLE + 0.35;      // screen opens
+  const MAX_WAIT = 6000;
+  const t0 = performance.now();
+  let T_BEAT = Infinity;               // seconds from start to the first beat's peak
+  let T_SETTLE = Infinity;             // strands merge into one line
+  let T_OPEN = Infinity;               // screen opens
+
+  const bpm = ov.querySelector(".intro-bpm");
+  const bpmText = bpm && bpm.lastChild;
+  if (bpmText) bpmText.textContent = "— BPM";
+
+  const heroReady = new Promise((res) => {
+    if (window.__heroReady) res();
+    else addEventListener("hero-ready", res, { once: true });
+  });
+  const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+  const timeout = new Promise((res) => setTimeout(res, MAX_WAIT));
+
+  Promise.race([Promise.all([heroReady, fontsReady]), timeout]).then(() => {
+    const t = (performance.now() - t0) / 1000;
+    const phase = P ? P.phase(0) : (t / period) % 1;
+    let beatAt = t + (1 - phase + 0.08) * period;        // next heartbeat peak
+    if (beatAt - period > t + 0.05) beatAt -= period;    // it may already be coming up
+    while (beatAt < 1.1) beatAt += period;
+    T_BEAT = beatAt;
+    T_SETTLE = T_BEAT + 1.05;
+    T_OPEN = T_SETTLE + 0.35;
+    if (bpmText) bpmText.textContent = "54 BPM";          // the heart starts
+    bpm?.classList.add("is-live");
+  });
 
   /* ---------- Waveform ---------- */
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -72,7 +101,6 @@
   ];
 
   let flashed = false, raf = 0, finished = false;
-  const t0 = performance.now();
 
   const frame = (now) => {
     const t = (now - t0) / 1000;
@@ -83,7 +111,7 @@
     ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.fillRect(0, 0, W, H);
 
-    const drift = (t - T_BEAT) * W * 0.012;              // barely noticeable travel
+    const drift = (t - 1.5) * W * 0.012;                 // barely noticeable travel
     const cx = W / 2 + drift, cy = H / 2;
     const reveal = ease(t / 1.0) * (W * 0.62);          // strands open out from the centre
     const settle = ease((t - T_SETTLE) / 0.35);          // 0 → 1: merge into one calm line
