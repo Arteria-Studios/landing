@@ -7,7 +7,8 @@
    still image without parallax. */
 (() => {
   const canvas = document.querySelector("[data-depth]");
-  if (!canvas) return;
+  // Phones have no background here (hidden in CSS): don't start WebGL at all.
+  if (!canvas || matchMedia("(max-width: 809px)").matches) return;
   const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
   if (!gl) return;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;

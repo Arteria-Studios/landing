@@ -1346,6 +1346,8 @@ main { position: relative; }
      you swipe), its meta and a clear "View case" link under it, and the list of
      names below. The page snaps to the nearest project when a swipe settles. */
   html:has(.wk) { scroll-snap-type: y proximity; }
+  /* No liquid background on phones: plain black behind the list. */
+  .depth-bg { display: none; }
   .wk { --wk-side: var(--pad); --wk-img-w: calc(100vw - 2 * var(--pad)); --wk-img-top: calc(var(--nav-h) + 8px); }
   .wk-stage { height: 100svh; }
   .wk-imgs { top: var(--wk-img-top); z-index: 3; }

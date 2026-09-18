@@ -387,10 +387,11 @@ if (works) {
     });
     if (phone) {
       // One preview: the focused image, crossfading into its neighbour as you swipe.
+      // A still crossfade only: no movement or zoom, so the preview never shakes.
       imgs.forEach((el, i) => {
-        const d = i - current, a = Math.abs(d);
+        const a = Math.abs(i - current);
         const o = Math.max(0, 1 - a * 1.25);
-        el.style.transform = `translateY(${(-d * 24).toFixed(1)}px) scale(${(1 - Math.min(1, a) * 0.04).toFixed(4)})`;
+        el.style.transform = "none";
         el.style.opacity = o.toFixed(3);
         el.style.visibility = o > 0 ? "" : "hidden";
         el.style.pointerEvents = a < 0.5 ? "" : "none";
