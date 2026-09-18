@@ -64,7 +64,7 @@ const page = `<!doctype html>
     <label>About the project<textarea id="message">We’re launching an AI assistant for clinics and need a brand plus a web app. Timeline is tight.</textarea></label>
     <label>Screen<div class="seg" data-group="width"><button data-v="600" aria-pressed="true">Desktop</button><button data-v="375" aria-pressed="false">Phone</button></div></label>
     <label>Client<div class="seg" data-group="client"><button data-v="apple" aria-pressed="true">Apple Mail</button><button data-v="gmail" aria-pressed="false">Gmail / no CSS</button></div></label>
-    <div class="meta">Apple Mail and iOS Mail play the CSS motion: the live dot beats at 54 BPM and a pulse walks down the red thread. Hover the steps and the button on desktop. Every client plays the ECG hero.<br><br>From: <b>ArteriaStudios</b><br>Reply-to: the studio inbox</div>
+    <div class="meta">Apple Mail and iOS Mail play the CSS motion: the live dot beats at 54 BPM and a pulse walks down the red thread. Hover the steps and the button on desktop. Every client plays the animated hero (the site's preloader).<br><br>From: <b>ArteriaStudios</b><br>Reply-to: the studio inbox</div>
   </aside>
   <main>
     <div class="inbox">
