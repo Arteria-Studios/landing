@@ -38,6 +38,63 @@ const PROJECTS = [
 }
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ---------- Heartbeat cursor ----------
+   A red dot follows the mouse exactly; a thin ring trails it with a little
+   inertia and beats in the page's rhythm (pulse.js, or the same lub-dub shape
+   on pages without it). Over links and buttons the ring opens up; over text
+   fields the native caret comes back. Mouse-only, never with reduced motion. */
+if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reducedMotion) {
+  const dot = document.createElement("div");
+  const ring = document.createElement("div");
+  dot.className = "cur-dot";
+  ring.className = "cur-ring";
+  dot.setAttribute("aria-hidden", "true");
+  ring.setAttribute("aria-hidden", "true");
+  document.body.append(ring, dot);
+  document.documentElement.classList.add("has-cursor");
+
+  const PERIOD = 60 / 54;
+  const t0 = performance.now();
+  const env = (p) => Math.min(1, Math.exp(-(((p - 0.08) * 22) ** 2)) + 0.6 * Math.exp(-(((p - 0.24) * 22) ** 2)));
+  const beat = () => {
+    if (window.Pulse) return window.Pulse.at(0);
+    const x = (performance.now() - t0) / 1000 / PERIOD;
+    return env(x - Math.floor(x));
+  };
+
+  let mx = -100, my = -100, rx = -100, ry = -100, grow = 0, target = 0, press = 0, shown = false;
+  const INTERACTIVE = "a, button, [role=button], .chip, .seg, label, summary";
+  const TEXT = "input:not([type=range]):not([type=radio]):not([type=checkbox]), textarea, select";
+
+  addEventListener("pointermove", (e) => {
+    mx = e.clientX; my = e.clientY;
+    if (!shown) { rx = mx; ry = my; shown = true; document.documentElement.classList.add("cur-on"); }
+    const el = e.target instanceof Element ? e.target : null;
+    const onText = !!el?.closest(TEXT);
+    document.documentElement.classList.toggle("cur-text", onText);
+    target = !onText && el?.closest(INTERACTIVE) ? 1 : 0;
+  }, { passive: true });
+  document.addEventListener("pointerleave", () => { shown = false; document.documentElement.classList.remove("cur-on"); });
+  addEventListener("pointerdown", () => { press = 1; });
+  addEventListener("pointerup", () => { press = 0; });
+
+  const loop = () => {
+    rx += (mx - rx) * 0.2;
+    ry += (my - ry) * 0.2;
+    grow += (target - grow) * 0.18;
+    const b = beat();
+    // Ring: 34px at rest, 64px over interactive elements, a small swell on every beat.
+    const size = (34 + 30 * grow) * (1 + b * 0.14) * (1 - press * 0.15);
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    ring.style.width = ring.style.height = `${size.toFixed(1)}px`;
+    ring.style.setProperty("--fill", (grow * 0.18 + b * 0.06).toFixed(3));
+    ring.style.setProperty("--edge", (0.35 + b * 0.5).toFixed(3));
+    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${(1 - grow * 0.6 + b * 0.5).toFixed(3)})`;
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
 /* ---------- Mobile menu ---------- */
 {
   const btn = document.querySelector(".nav-menu");

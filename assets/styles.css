@@ -55,6 +55,35 @@ img { display: block; }
 }
 .skip-link:focus-visible { transform: none; }
 
+/* ---------- Heartbeat cursor (mouse only, set up in main.js) ---------- */
+.has-cursor,
+.has-cursor * { cursor: none !important; }
+.has-cursor :is(input:not([type=range]):not([type=radio]):not([type=checkbox]), textarea, select) { cursor: text !important; }
+.cur-dot,
+.cur-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 400;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s;
+  will-change: transform;
+}
+.cur-dot { width: 6px; height: 6px; background: #ff3b2a; }
+.cur-ring {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, var(--edge, .35));
+  background: rgba(255, 59, 42, var(--fill, 0));
+}
+.cur-on .cur-dot,
+.cur-on .cur-ring { opacity: 1; }
+/* Over text fields the native caret takes over. */
+.cur-text .cur-dot,
+.cur-text .cur-ring { opacity: 0; }
+
 /* ---------- Page transitions (cross-document View Transitions, where supported) ---------- */
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: vt-out .35s cubic-bezier(.4, 0, .2, 1) both; }
