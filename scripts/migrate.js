@@ -7,6 +7,12 @@
  * P1002 "timed out". So this runs them over the direct connection when one is
  * available (DIRECT_URL, or what the Neon/Vercel integrations set), and retries
  * a couple of times because a Neon compute may be waking up from sleep.
+ *
+ * The advisory lock itself is switched off (PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK):
+ * a lock taken through the pooler by an earlier, failed build can stay held on
+ * a pooled server connection and time out every later build. Deploys run one
+ * build at a time, and applied migrations are recorded in _prisma_migrations,
+ * so re-running is a no-op.
  */
 const { execSync } = require('child_process')
 
@@ -32,7 +38,7 @@ for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
   try {
     execSync('npx prisma migrate deploy', {
       stdio: 'inherit',
-      env: { ...process.env, DATABASE_URL: directUrl },
+      env: { ...process.env, DATABASE_URL: directUrl, PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: '1' },
     })
     process.exit(0)
   } catch (error) {
