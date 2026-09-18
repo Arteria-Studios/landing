@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model StudioService {
+  id          String   @id @default(cuid())
+  name        String
+  /// Bento tile on the home page: ai, development, design, branding, product,
+  /// strategy, motion, promotion. Services without a category are not shown there.
+  category    String?
+  /// Short explanation shown in the popover when the service is hovered.
+  description String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+model ContactRequest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  phone     String?
+  message   String
+  /// Brief details from the landing form (chips and segmented choices).
+  services  String[] @default([])
+  budget    String?
+  timeline  String?
+  source    String?  @default("landing_contact_form")
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  industry    String?
+  body        String?
+  testimonial String?
+  services    String[]
+  stack       String[]
+  link        String?
+  mediaLayout MediaLayout   @default(TWO_COLUMNS)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  media       ProjectMedia[]
+
+  @@index([sortOrder])
+}
+
+model ProjectMedia {
+  id          String          @id @default(cuid())
+  projectId   String
+  kind        MediaKind
+  title       String?
+  url         String
+  s3Key       String
+  contentType String?
+  sortOrder   Int             @default(0)
+  columnSpan  MediaColumnSpan @default(TWO_COLUMNS)
+  createdAt   DateTime        @default(now())
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum MediaLayout {
+  TWO_COLUMNS
+  FULL_WIDTH
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+}
+
+enum MediaColumnSpan {
+  ONE_COLUMN
+  TWO_COLUMNS
+}

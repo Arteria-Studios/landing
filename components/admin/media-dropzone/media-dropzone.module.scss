@@ -1,0 +1,171 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint {
+  color: #989898;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.dragging .dropCard {
+  border-color: #00ff6a;
+  background: rgba(0, 255, 106, 0.06);
+}
+
+.card {
+  border: 1px solid #3d3d3d;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  overflow: hidden;
+}
+
+.preview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  .videoPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.videoPreview {
+  min-height: 100%;
+}
+
+.cardBody {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 11px;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.select {
+  border: 1px solid #2a2a2a;
+  background: #0f0f0f;
+  color: #fff;
+  padding: 6px;
+  font-size: 12px;
+}
+
+.cardActions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.cardBtn {
+  border: 1px solid #4f4f4f;
+  background: #111;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.cardBtnDanger {
+  border-color: #8b2e2e;
+  color: #ff8a8a;
+  margin-left: auto;
+}
+
+.dropCard {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  min-height: 180px;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    border-color: #6a6a6a;
+  }
+}
+
+.dropIcon {
+  font-size: 28px;
+  line-height: 1;
+  color: #00ff6a;
+}
+
+.dropText {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #989898;
+  text-align: center;
+  padding: 0 12px;
+  margin-top: 8px;
+}
+
+.cardPending {
+  align-items: center;
+  justify-content: center;
+
+  .preview {
+    width: 100%;
+  }
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #333;
+  border-top-color: #00ff6a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

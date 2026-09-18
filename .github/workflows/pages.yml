@@ -1,4 +1,6 @@
-# Publishes the static site to GitHub Pages on every push to main.
+# Publishes the static frontend (public/) to GitHub Pages on every push to main.
+# Pages has no server: the site runs on the content bundled in public/assets/main.js
+# and the contact form falls back to email. The full app is deployed with Docker.
 name: Deploy to GitHub Pages
 
 on:
@@ -26,6 +28,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          # Static frontend only: API, admin and database need the Next.js server.
+          path: public
       - id: deployment
         uses: actions/deploy-pages@v4

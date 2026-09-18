@@ -1,0 +1,44 @@
+{
+  "name": "arteria-landing",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build && node scripts/verify-image-config.js",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build && node scripts/verify-image-config.js",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@vercel/blob": "^2.6.1",
+    "clsx": "^2.1.0",
+    "next": "^14.2.33",
+    "prisma": "^6.19.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "sass": "^1.69.7",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "eslint": "8.56.0",
+    "eslint-config-next": "^14.2.33",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.1.1"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "prisma@6.19.3": true,
+    "sharp@0.33.5": true,
+    "unrs-resolver@1.12.2": true,
+    "@parcel/watcher": false
+  }
+}

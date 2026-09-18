@@ -1,0 +1,34 @@
+/* Base styles for the Next.js pages (the admin). The public site has its own
+   stylesheet in public/assets/styles.css. */
+
+:root {
+  --font-secondary: 'Inter Tight', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: #040404;
+  color: #fff;
+  font-family: var(--font-secondary);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

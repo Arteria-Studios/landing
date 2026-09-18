@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArteriaStudios — Brands, products and digital worlds</title>
+  <meta name="description" content="Design and technology studio. 14+ years, 60+ projects: brand identity, product design, web and app development, AI products and motion.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <!-- Social previews (site is served from GitHub Pages; update SITE URLs if the domain changes). -->
+  <link rel="canonical" href="https://arteria-studios.github.io/landing/">
+  <meta property="og:url" content="https://arteria-studios.github.io/landing/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ArteriaStudios">
+  <meta property="og:title" content="ArteriaStudios — Brands, products and digital worlds">
+  <meta property="og:description" content="Design and technology studio. 14+ years, 60+ projects: brand identity, product design, web and app development, AI products and motion.">
+  <meta property="og:image" content="https://arteria-studios.github.io/landing/assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Inter+Tight:wght@400;500&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=43">
+  <script>
+    /* Decide before first paint whether the ECG intro plays: once per session,
+       never with reduced motion. */
+    (function () {
+      var seen = false;
+      try { seen = sessionStorage.getItem("arteria-intro") === "1"; } catch (e) {}
+      var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.documentElement.classList.add(seen || still ? "no-intro" : "intro");
+    })();
+  </script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="intro-overlay" aria-hidden="true">
+    <div class="intro-half intro-top"></div>
+    <div class="intro-half intro-bottom"></div>
+    <canvas class="intro-ecg"></canvas>
+    <div class="intro-flash"></div>
+    <span class="intro-brand">ArteriaStudios</span>
+    <span class="intro-bpm"><i></i>54 BPM</span>
+  </div>
+  <nav class="nav">
+    <a href="index.html"><span class="roll"><span>ArteriaStudios</span><span>ArteriaStudios</span></span></a>
+    <a href="works.html"><span class="roll"><span>Works</span><span>Works</span></span></a>
+    <a href="about.html"><span class="roll"><span>About</span><span>About</span></span></a>
+    <a href="#contact"><span class="roll"><span>Let’s Talk</span><span>Let’s Talk</span></span></a>
+    <button class="nav-menu" type="button" aria-expanded="false" aria-controls="menu"><span class="roll"><span>Menu</span><span>Close</span></span></button>
+  </nav>
+
+  <!-- Full-screen menu for small screens -->
+  <div class="menu" id="menu" hidden>
+    <nav class="menu-links" aria-label="Main">
+      <a href="#top">Home</a>
+      <a href="works.html">Works</a>
+      <a href="about.html">About</a>
+      <a href="#contact">Start a project</a>
+    </nav>
+    <div class="menu-foot">
+      <span data-mail>name@email.com</span>
+      <span><a href="https://www.instagram.com/">Instagram</a> · <a href="https://www.twitter.com/">Twitter</a> · <a href="https://www.linkedin.com/">LinkedIn</a></span>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- Red thread: the "vessel" connecting sections; drawn and pulsed by pulse.js -->
+    <div class="thread" data-thread aria-hidden="true"><i class="thread-fill"></i><b class="thread-pulse"></b></div>
+    <section class="hx">
+      <div class="hx-top">
+        <div class="hx-lead">
+        <h1 class="hx-title">
+          <span>We design and build brands,</span>
+          <span>products and digital worlds</span>
+          <span>that people remember.</span>
+        </h1>
+        <div class="hx-sub">
+          <p>We never stand still: alongside client work, we build and ship our own products for the industry.</p>
+          <a class="hx-cta" href="#contact"><span class="roll"><span>Start a project</span><span>Start a project</span></span><i aria-hidden="true">→</i></a>
+        </div>
+        </div>
+        <!-- Proof points; digits roll in like a counter when the hero opens. -->
+        <dl class="hx-stats" data-stats>
+          <div class="hx-stat" data-beat><dt>Years of craft</dt><dd><span class="sr">14+</span><span class="odo" data-to="14" aria-hidden="true"></span><b aria-hidden="true">+</b></dd></div>
+          <div class="hx-stat" data-beat><dt>Projects shipped</dt><dd><span class="sr">60+</span><span class="odo" data-to="60" aria-hidden="true"></span><b aria-hidden="true">+</b></dd></div>
+          <div class="hx-stat" data-beat><dt>Client satisfaction</dt><dd><span class="sr">95%</span><span class="odo" data-to="95" aria-hidden="true"></span><b aria-hidden="true">%</b></dd></div>
+        </dl>
+      </div>
+      <div class="hx-stage">
+        <canvas data-wormhole aria-hidden="true"></canvas>
+      </div>
+      <div class="hx-foot" aria-hidden="true">
+        <i>+</i><i>+</i><span>Scroll to explore</span><i>+</i><i>+</i>
+      </div>
+    </section>
+
+    <section class="svc" data-beat aria-labelledby="svc-title">
+      <div class="section-head reveal">
+        <h2 class="section-title" id="svc-title">Services</h2>
+        <p class="section-meta">Eight disciplines, one team — from the first insight to a shipped product.</p>
+      </div>
+      <div class="bento">
+        <article data-beat class="bento-tile bento-tile--hero" style="grid-area:ai">
+          <canvas class="bento-icon" data-icon="ai" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>AI</h3>
+            <ul><li>AI-based products</li><li>AI agents &amp; automation</li><li>RAG pipelines</li><li>LLM integration</li><li>MCP &amp; tool integrations</li><li>Voice &amp; chat assistants</li><li>AI-native UX</li><li>Evals &amp; fine-tuning</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile bento-tile--wide" style="grid-area:dev">
+          <canvas class="bento-icon" data-icon="development" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Development</h3>
+            <ul><li>Websites</li><li>Web apps</li><li>iOS apps</li><li>Android apps</li><li>Cross-platform apps</li><li>Framer &amp; Webflow</li><li>WebGL &amp; interactive</li><li>CMS integration</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:des">
+          <canvas class="bento-icon" data-icon="design" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Design</h3>
+            <ul><li>UI/UX design</li><li>Web design</li><li>Presentations</li><li>Editorial design</li><li>Packaging</li><li>Illustration</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:bra">
+          <canvas class="bento-icon" data-icon="branding" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Branding</h3>
+            <ul><li>Brand identity</li><li>Logo &amp; symbol</li><li>Naming</li><li>Tone of voice</li><li>Brand guidelines</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:pro">
+          <canvas class="bento-icon" data-icon="product" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Product</h3>
+            <ul><li>Product discovery</li><li>UX research</li><li>Prototyping</li><li>Design systems</li><li>Mobile apps</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:str">
+          <canvas class="bento-icon" data-icon="strategy" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Strategy</h3>
+            <ul><li>Research</li><li>Brand audit</li><li>Positioning</li><li>Competitive analysis</li><li>Roadmap</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:mot">
+          <canvas class="bento-icon" data-icon="motion" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Motion &amp; 3D</h3>
+            <ul><li>Motion design</li><li>3D visualization</li><li>Generative visuals</li><li>Showreels</li></ul>
+          </div>
+        </article>
+        <article data-beat class="bento-tile" style="grid-area:prm">
+          <canvas class="bento-icon" data-icon="promotion" aria-hidden="true"></canvas>
+          <div class="bento-text">
+            <h3>Promotion</h3>
+            <ul><li>Social media</li><li>Advertising campaigns</li><li>Marketing materials</li><li>Content production</li><li>SEO &amp; analytics</li></ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="projects" aria-labelledby="projects-title">
+      <div class="section-head reveal">
+        <h2 class="section-title" id="projects-title">Selected projects</h2>
+        <p class="section-meta" data-projects-count></p>
+      </div>
+      <div class="grid" data-grid></div>
+      <div class="all-works">
+        <a class="pill" href="works.html"><span class="roll"><span>All works</span><span>All works</span></span><i aria-hidden="true">→</i></a>
+      </div>
+    </section>
+
+    <section class="brands" aria-labelledby="brands-title">
+      <div class="section-head reveal">
+        <h2 class="section-title" id="brands-title">Brands we’ve worked with</h2>
+        <p class="section-meta" data-brand-count></p>
+      </div>
+      <div class="brands-row" data-brands data-dir="left"></div>
+      <div class="brands-row" data-brands data-dir="right"></div>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <div class="contact-intro">
+        <h2 class="section-title" id="contact-title">Start a project</h2>
+        <p class="contact-lead">Tell us what you’re building. We reply within one business day with next steps and a rough estimate.</p>
+        <dl class="contact-facts">
+          <div><dt>Email</dt><dd><button class="contact-mail" type="button" data-copy-mail><span data-mail></span><em data-copied>Copy</em></button></dd></div>
+          <div><dt>Response time</dt><dd>Within 24 hours</dd></div>
+          <div><dt>Studio time</dt><dd data-studio-time>—</dd></div>
+        </dl>
+      </div>
+
+      <form class="contact-form" data-brief novalidate>
+        <fieldset class="field">
+          <legend>What do you need? <small>Pick one or more</small></legend>
+          <div class="chips" data-group="services"><button type="button" class="chip" data-value="Branding" aria-pressed="false">Branding</button><button type="button" class="chip" data-value="Design" aria-pressed="false">Design</button><button type="button" class="chip" data-value="Product" aria-pressed="false">Product</button><button type="button" class="chip" data-value="Development" aria-pressed="false">Development</button><button type="button" class="chip" data-value="AI" aria-pressed="false">AI</button><button type="button" class="chip" data-value="Motion &amp; 3D" aria-pressed="false">Motion &amp; 3D</button><button type="button" class="chip" data-value="Strategy" aria-pressed="false">Strategy</button><button type="button" class="chip" data-value="Promotion" aria-pressed="false">Promotion</button></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Budget</legend>
+          <div class="segs"><label class="seg"><input type="radio" name="budget" value="Under $10k"><span>Under $10k</span></label><label class="seg"><input type="radio" name="budget" value="$10–25k"><span>$10–25k</span></label><label class="seg"><input type="radio" name="budget" value="$25–50k" checked><span>$25–50k</span></label><label class="seg"><input type="radio" name="budget" value="$50–100k"><span>$50–100k</span></label><label class="seg"><input type="radio" name="budget" value="$100k+"><span>$100k+</span></label></div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Timeline</legend>
+          <div class="segs"><label class="seg"><input type="radio" name="timeline" value="ASAP"><span>ASAP</span></label><label class="seg"><input type="radio" name="timeline" value="1–3 months" checked><span>1–3 months</span></label><label class="seg"><input type="radio" name="timeline" value="3–6 months"><span>3–6 months</span></label><label class="seg"><input type="radio" name="timeline" value="Flexible"><span>Flexible</span></label></div>
+        </fieldset>
+
+        <div class="field-row">
+          <label class="field input"><span>Name</span><input name="name" autocomplete="name" placeholder="Jane Smith" required></label>
+          <label class="field input"><span>Company <small>optional</small></span><input name="company" autocomplete="organization" placeholder="Acme Inc."></label>
+        </div>
+        <label class="field input"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="jane@acme.com" required></label>
+        <label class="field input"><span>About the project <small>optional</small></span><textarea name="note" rows="3" placeholder="Goals, links, anything that helps us understand the task."></textarea></label>
+        <!-- Honeypot: humans never see or fill this. -->
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="form-actions">
+          <button class="pill pill--accent" type="submit"><span class="roll"><span>Send request</span><span>Send request</span></span><i aria-hidden="true">→</i></button>
+          <p class="form-status" data-brief-status role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <footer class="site-foot">
+      <div class="foot-grid">
+        <div class="foot-col">
+          <span class="foot-label">Navigate</span>
+          <a href="works.html">Works</a>
+          <a href="#contact">Start a project</a>
+        </div>
+        <div class="foot-col">
+          <span class="foot-label">Status</span>
+          <span class="foot-status"><i></i>Taking new projects</span>
+        </div>
+        <div class="foot-col foot-links">
+          <span class="foot-label">Elsewhere</span>
+          <a href="https://www.instagram.com/">Instagram</a>
+          <a href="https://www.twitter.com/">Twitter</a>
+          <a href="https://www.linkedin.com/">LinkedIn</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span data-year></span> ArteriaStudios</span>
+        <a href="#top" data-to-top>Back to top ↑</a>
+      </div>
+      <div class="foot-mark" aria-hidden="true">ArteriaStudios</div>
+    </footer>
+  </main>
+
+  <script>document.querySelectorAll("[data-year]").forEach(e => e.textContent = new Date().getFullYear());</script>
+  <script src="data.js"></script>
+  <script src="assets/main.js?v=43"></script>
+  <script src="assets/footmark.js?v=43"></script>
+  <script src="assets/wormhole.js?v=43"></script>
+  <script src="assets/services.js?v=43"></script>
+  <script src="assets/pulse.js?v=43"></script>
+  <script src="assets/intro.js?v=43"></script>
+  <script src="assets/brief.js?v=43"></script>
+</body>
+</html>

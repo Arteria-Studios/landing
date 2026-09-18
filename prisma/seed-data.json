@@ -1,0 +1,567 @@
+{
+  "projects": [
+    {
+      "name": "San Vicente Clubs",
+      "services": [
+        "Presentation"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/san-vicente-clubs.jpg",
+          "title": "San Vicente Clubs"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/san-vicente-clubs.mp4",
+          "title": "San Vicente Clubs"
+        }
+      ]
+    },
+    {
+      "name": "Quanto",
+      "services": [
+        "Branding"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/quanto.jpg",
+          "title": "Quanto"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/quanto.mp4",
+          "title": "Quanto"
+        }
+      ]
+    },
+    {
+      "name": "Agronauts",
+      "services": [
+        "Branding",
+        "Product Design"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/agronauts.jpg",
+          "title": "Agronauts"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/agronauts.mp4",
+          "title": "Agronauts"
+        }
+      ]
+    },
+    {
+      "name": "Celesta",
+      "services": [
+        "Branding"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/celesta.jpg",
+          "title": "Celesta"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/celesta.mp4",
+          "title": "Celesta"
+        }
+      ]
+    },
+    {
+      "name": "Redmouse",
+      "services": [
+        "Website"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/redmouse.jpg",
+          "title": "Redmouse"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/redmouse.mp4",
+          "title": "Redmouse"
+        }
+      ]
+    },
+    {
+      "name": "ArteriaStudios",
+      "services": [
+        "Campaign"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/arteriastudios.jpg",
+          "title": "ArteriaStudios"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/arteriastudios.mp4",
+          "title": "ArteriaStudios"
+        }
+      ]
+    },
+    {
+      "name": "Digest AI",
+      "services": [
+        "Branding",
+        "Product Design"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/digest-ai.jpg",
+          "title": "Digest AI"
+        },
+        {
+          "kind": "VIDEO",
+          "url": "/assets/media/digest-ai.mp4",
+          "title": "Digest AI"
+        }
+      ]
+    },
+    {
+      "name": "ARDA FightClub",
+      "services": [
+        "Presentations"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "ARDA FightClub"
+        }
+      ]
+    },
+    {
+      "name": "Carriving",
+      "services": [
+        "Branding",
+        "Product Design",
+        "Marketing Materials"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/carriving.webp",
+          "title": "Carriving"
+        }
+      ]
+    },
+    {
+      "name": "Medhub",
+      "services": [
+        "Coverstory"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/medhub.webp",
+          "title": "Medhub"
+        }
+      ]
+    },
+    {
+      "name": "AT Engineering",
+      "services": [
+        "Website"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "AT Engineering"
+        }
+      ]
+    },
+    {
+      "name": "Gulflink",
+      "services": [
+        "Website"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/gulflink.webp",
+          "title": "Gulflink"
+        }
+      ]
+    },
+    {
+      "name": "HeatSentinel",
+      "services": [
+        "Presentation",
+        "Product Design"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "HeatSentinel"
+        }
+      ]
+    },
+    {
+      "name": "Educate AI",
+      "services": [
+        "Branding",
+        "Product Design",
+        "Presentations"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Educate AI"
+        }
+      ]
+    },
+    {
+      "name": "Mediabay TV",
+      "services": [
+        "Branding",
+        "Product Design"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Mediabay TV"
+        }
+      ]
+    },
+    {
+      "name": "HeritageCrafts",
+      "services": [
+        "Product AI Generation Pipeline"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "HeritageCrafts"
+        }
+      ]
+    },
+    {
+      "name": "PharmX",
+      "services": [
+        "Branding",
+        "Presentations"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "PharmX"
+        }
+      ]
+    },
+    {
+      "name": "PolyGinger",
+      "services": [
+        "Branding"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "PolyGinger"
+        }
+      ]
+    },
+    {
+      "name": "Evolta",
+      "services": [
+        "Branding"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Evolta"
+        }
+      ]
+    },
+    {
+      "name": "Basecamp",
+      "services": [
+        "Branding",
+        "Presentations"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Basecamp"
+        }
+      ]
+    },
+    {
+      "name": "Medical Journal",
+      "services": [
+        "Editorial Design"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Medical Journal"
+        }
+      ]
+    },
+    {
+      "name": "Logos 2025",
+      "services": [
+        "Logos"
+      ],
+      "media": [
+        {
+          "kind": "IMAGE",
+          "url": "/assets/media/placeholder.webp",
+          "title": "Logos 2025"
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "name": "AI-based products",
+      "category": "ai",
+      "description": "Products built around AI from day one, from the idea and UX to a working launch."
+    },
+    {
+      "name": "AI agents & automation",
+      "category": "ai",
+      "description": "Agents that finish multi-step tasks on their own: handle requests, update systems, run routine workflows."
+    },
+    {
+      "name": "RAG pipelines",
+      "category": "ai",
+      "description": "AI that answers from your own knowledge base (documents, website, CRM) and cites sources instead of guessing."
+    },
+    {
+      "name": "LLM integration",
+      "category": "ai",
+      "description": "Adding language models to products you already have: smart search, summaries, drafting, support."
+    },
+    {
+      "name": "MCP & tool integrations",
+      "category": "ai",
+      "description": "Connecting AI to your services and data through the Model Context Protocol, so it can act, not just talk."
+    },
+    {
+      "name": "Voice & chat assistants",
+      "category": "ai",
+      "description": "Assistants that talk to customers by voice or chat around the clock, in your brand's tone."
+    },
+    {
+      "name": "AI-native UX",
+      "category": "ai",
+      "description": "Interfaces designed around AI: clear prompts, streaming answers, and controls that keep users confident."
+    },
+    {
+      "name": "Evals & fine-tuning",
+      "category": "ai",
+      "description": "Measuring answer quality on real cases and tuning models until they're reliable for your task."
+    },
+    {
+      "name": "Websites",
+      "category": "development",
+      "description": "Fast, responsive marketing sites and landing pages, built to convert and easy to update."
+    },
+    {
+      "name": "Web apps",
+      "category": "development",
+      "description": "Products that run in the browser, like dashboards, portals and SaaS, with a solid front and back end."
+    },
+    {
+      "name": "iOS apps",
+      "category": "development",
+      "description": "Native iPhone and iPad apps in Swift, ready for the App Store."
+    },
+    {
+      "name": "Android apps",
+      "category": "development",
+      "description": "Native Android apps in Kotlin, tuned for the wide range of Android devices."
+    },
+    {
+      "name": "Cross-platform apps",
+      "category": "development",
+      "description": "One codebase for iOS and Android (React Native or Flutter): faster to ship and kinder to the budget."
+    },
+    {
+      "name": "Framer & Webflow",
+      "category": "development",
+      "description": "Sites your team can edit without developers, with custom interactions where they matter."
+    },
+    {
+      "name": "WebGL & interactive",
+      "category": "development",
+      "description": "3D, shaders and interactive scenes in the browser, like the one at the top of this page."
+    },
+    {
+      "name": "CMS integration",
+      "category": "development",
+      "description": "A content system set up so your team can publish and update pages on their own."
+    },
+    {
+      "name": "UI/UX design",
+      "category": "design",
+      "description": "Interfaces that are easy to use and pleasant to look at, from user flows to final screens."
+    },
+    {
+      "name": "Web design",
+      "category": "design",
+      "description": "Site design where structure, typography and motion tell your story."
+    },
+    {
+      "name": "Presentations",
+      "category": "design",
+      "description": "Pitch decks and sales presentations that make complex ideas easy to follow."
+    },
+    {
+      "name": "Editorial design",
+      "category": "design",
+      "description": "Layouts for magazines, reports and books, where type and rhythm do the work."
+    },
+    {
+      "name": "Packaging",
+      "category": "design",
+      "description": "Packaging that stands out on the shelf and carries the brand into people's hands."
+    },
+    {
+      "name": "Illustration",
+      "category": "design",
+      "description": "Custom illustrations that give the brand a visual voice of its own."
+    },
+    {
+      "name": "Brand identity",
+      "category": "branding",
+      "description": "The full visual system (logo, colors, type, imagery) that makes a brand recognizable anywhere."
+    },
+    {
+      "name": "Logo & symbol",
+      "category": "branding",
+      "description": "A distinctive mark that works everywhere, from an app icon to a billboard."
+    },
+    {
+      "name": "Naming",
+      "category": "branding",
+      "description": "Names that are memorable and meaningful, and available as a domain and trademark."
+    },
+    {
+      "name": "Tone of voice",
+      "category": "branding",
+      "description": "How the brand speaks: words and style that stay consistent across every channel."
+    },
+    {
+      "name": "Brand guidelines",
+      "category": "branding",
+      "description": "A clear rulebook so any team or contractor applies the brand correctly."
+    },
+    {
+      "name": "Product discovery",
+      "category": "product",
+      "description": "Working out what to build and why before any code: problems, users, hypotheses."
+    },
+    {
+      "name": "UX research",
+      "category": "product",
+      "description": "Interviews and tests with real users, so decisions rest on evidence, not opinions."
+    },
+    {
+      "name": "Prototyping",
+      "category": "product",
+      "description": "Clickable prototypes to test ideas quickly and cheaply before development starts."
+    },
+    {
+      "name": "Design systems",
+      "category": "product",
+      "description": "Reusable components and rules that keep a product consistent as it grows."
+    },
+    {
+      "name": "Mobile apps",
+      "category": "product",
+      "description": "Design for iOS and Android apps that feel native on each platform."
+    },
+    {
+      "name": "Research",
+      "category": "strategy",
+      "description": "Studying your market, audience and trends so every decision is grounded."
+    },
+    {
+      "name": "Brand audit",
+      "category": "strategy",
+      "description": "An honest look at how your brand looks, sounds and performs today."
+    },
+    {
+      "name": "Positioning",
+      "category": "strategy",
+      "description": "Defining what makes you different, and why customers should choose you."
+    },
+    {
+      "name": "Competitive analysis",
+      "category": "strategy",
+      "description": "Mapping competitors' strengths and gaps to find where you can win."
+    },
+    {
+      "name": "Roadmap",
+      "category": "strategy",
+      "description": "A step-by-step plan with priorities, timing and measurable goals."
+    },
+    {
+      "name": "Motion design",
+      "category": "motion",
+      "description": "Animation for interfaces, ads and brand videos that brings ideas to life."
+    },
+    {
+      "name": "3D visualization",
+      "category": "motion",
+      "description": "Photorealistic or stylized 3D renders of products, spaces and concepts."
+    },
+    {
+      "name": "Generative visuals",
+      "category": "motion",
+      "description": "Images and video made with AI and code, art-directed to fit the brand."
+    },
+    {
+      "name": "Showreels",
+      "category": "motion",
+      "description": "Short, punchy videos that show off your work or product in about a minute."
+    },
+    {
+      "name": "Social media",
+      "category": "promotion",
+      "description": "Strategy, content and design for your social channels."
+    },
+    {
+      "name": "Advertising campaigns",
+      "category": "promotion",
+      "description": "Campaign ideas and creatives for digital and offline advertising."
+    },
+    {
+      "name": "Marketing materials",
+      "category": "promotion",
+      "description": "Brochures, banners, merch: everything marketing needs, on brand."
+    },
+    {
+      "name": "Content production",
+      "category": "promotion",
+      "description": "Photo, video and copy produced for your channels on a regular schedule."
+    },
+    {
+      "name": "SEO & analytics",
+      "category": "promotion",
+      "description": "Getting found in search and measuring what works, so budget goes where it pays off."
+    }
+  ]
+}

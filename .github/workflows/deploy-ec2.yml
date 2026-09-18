@@ -1,0 +1,75 @@
+# Builds the Docker image on a self-hosted runner (EC2), applies database
+# migrations and restarts the app on port 3000. Manual for now: run it from the
+# Actions tab once the runner and secrets are set up (docs/deploy.md). To deploy
+# on every push, add `push: branches: [main]` under `on`.
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      NODE_ENV: production
+      WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Docker
+        run: |
+          set -euo pipefail
+          if ! command -v docker >/dev/null; then
+            echo "::error::docker not found. On EC2: sudo apt install -y docker.io && sudo systemctl start docker"
+            exit 1
+          fi
+          if ! docker ps >/dev/null 2>&1; then
+            echo "::error::this user cannot use docker (add it to the docker group and restart the runner)"
+            exit 1
+          fi
+
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          for key in WEBSITE_URL DATABASE_URL ADMIN_PASSWORD ADMIN_SESSION_SECRET; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Missing GitHub secret: $key"
+              exit 1
+            fi
+          done
+          case "$DATABASE_URL" in
+            postgresql://*|postgres://*) ;;
+            *) echo "::error::DATABASE_URL must start with postgresql:// or postgres://"; exit 1 ;;
+          esac
+
+      - name: Build, migrate and restart
+        run: |
+          set -euo pipefail
+          docker_env=(
+            -e NODE_ENV -e WEBSITE_URL -e DATABASE_URL
+            -e ADMIN_PASSWORD -e ADMIN_SESSION_SECRET
+            -e BLOB_READ_WRITE_TOKEN -e TELEGRAM_BOT_TOKEN -e TELEGRAM_CHAT_ID
+          )
+
+          docker system prune -af --filter "until=24h" || true
+
+          # The builder stage has full node_modules, needed for the Prisma CLI.
+          docker build --target builder -t arteria-landing-builder:latest .
+          docker build -t arteria-landing:latest .
+
+          docker run --rm "${docker_env[@]}" arteria-landing-builder:latest npx prisma migrate deploy
+          docker rm -f arteria-landing >/dev/null 2>&1 || true
+          docker run -d --name arteria-landing --restart unless-stopped \
+            "${docker_env[@]}" -p 3000:3000 arteria-landing:latest
+
+          sleep 5
+          curl -fsS http://127.0.0.1:3000/ >/dev/null
+          curl -fsS http://127.0.0.1:3000/data.js | head -c 120
+          echo
+          echo "Deploy complete: app is listening on port 3000"

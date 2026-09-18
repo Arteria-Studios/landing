@@ -1,0 +1,15 @@
+{
+  "extends": ["next/core-web-vitals", "prettier"],
+  "ignorePatterns": ["**/public/*.js"],
+  "rules": {
+    "no-unused-vars": "error",
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-img-element": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@next/next/no-page-custom-font": "off",
+    "array-callback-return": "off",
+    "no-useless-escape": "off",
+    "no-inner-declarations": "off",
+    "@typescript-eslint/no-var-requires": "off"
+  }
+}
