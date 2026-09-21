@@ -881,7 +881,21 @@ a:hover .roll span { transform: translateY(-100%); }
 .world-list li { transition: color .4s; }
 .world-list b { font-weight: 400; color: rgba(255, 255, 255, .7); transition: color .4s; }
 .world-list li.is-on, .world-list li.is-on b { color: #fff; }
-.world-list li.is-on::before { content: "● "; color: #ff3b2a; }
+/* The dot always takes its place, it only fades in: the row never shifts. */
+.world-list li::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #ff3b2a;
+  vertical-align: .15em;
+  opacity: 0;
+  transform: scale(.4);
+  transition: opacity .4s, transform .4s cubic-bezier(.2, .8, .2, 1);
+}
+.world-list li.is-on::before { opacity: 1; transform: none; }
 @media (max-width: 809px) {
   .world-stage { height: 72vw; min-height: 260px; }
   .world-label { font-size: 8px; gap: 4px; }
