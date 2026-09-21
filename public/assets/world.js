@@ -34,7 +34,7 @@
     { name: "Tallinn", cc: "EE", lat: 59.44, lon: 24.75, side: "t" },
     { name: "Moscow", cc: "RU", lat: 55.76, lon: 37.62, side: "r" },
     { name: "Almaty", cc: "KZ", lat: 43.24, lon: 76.89, side: "r" },
-    { name: "Tashkent", cc: "UZ", lat: 41.30, lon: 69.24, side: "b" },
+    { name: "Tashkent", cc: "UZ", lat: 41.30, lon: 69.24, side: "l" },
     { name: "Dubai", cc: "AE", lat: 25.20, lon: 55.27, side: "r" },
     { name: "Doha", cc: "QA", lat: 25.29, lon: 51.53, side: "l" },
     { name: "Johannesburg", cc: "ZA", lat: -26.20, lon: 28.05, side: "r" },
@@ -362,8 +362,11 @@
   const camera = (lean) => {
     const aspect = W / H;
     // Distance so the whole map width fits, with a little air on both sides.
+    // Narrow stages (phones) zoom in: the Pacific ends crop into the edge fade,
+    // every client city stays in frame.
+    const fitW = aspect < 1.8 ? X_MAX * 0.8 : X_MAX * 1.08;
     const hfov = Math.atan(Math.tan(FOV / 2) * aspect);
-    const d = (X_MAX * 1.08) / Math.tan(hfov) + 0.6;
+    const d = fitW / Math.tan(hfov) + 0.6;
     const tilt = TILT + lean[1] * 0.05;
     const yaw = lean[0] * 0.06;
     const target = [0, -0.1, 0.12];
@@ -417,7 +420,7 @@
   const labels = CITIES.map((c) => {
     const el = document.createElement("span");
     el.className = `world-label is-${c.side}`;
-    el.innerHTML = `<i></i><b>${c.name}</b><small>${c.cc}</small>`;
+    el.innerHTML = `<i></i><span><b>${c.name}</b> <small>${c.cc}</small></span>`;
     labelsEl.appendChild(el);
     return el;
   });

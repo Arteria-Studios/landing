@@ -855,6 +855,7 @@ a:hover .roll span { transform: translateY(-100%); }
 .world-label small { font-size: 9px; color: rgba(255, 255, 255, .28); transition: color .4s; }
 /* The label sits beside its point: i is a spacer the size of the city dot. */
 .world-label i { flex: none; width: 10px; }
+.world-label span { white-space: nowrap; }
 .world-label.is-l { translate: -100% -50%; }
 .world-label.is-l i { order: 3; }             /* "NEW YORK US" then the point */
 .world-label.is-r { translate: 0 -50%; }
@@ -882,7 +883,7 @@ a:hover .roll span { transform: translateY(-100%); }
 .world-list li.is-on, .world-list li.is-on b { color: #fff; }
 .world-list li.is-on::before { content: "● "; color: #ff3b2a; }
 @media (max-width: 809px) {
-  .world-stage { height: 64vw; min-height: 240px; }
+  .world-stage { height: 72vw; min-height: 260px; }
   .world-label { font-size: 8px; gap: 4px; }
   .world-label small { display: none; }
   /* Cities sit too close at this size: only the one the signal just reached is named. */
