@@ -822,6 +822,75 @@ a:hover .roll span { transform: translateY(-100%); }
   .brands-row { overflow-x: auto; }
 }
 
+/* ---------- Around the world: wireframe map (assets/world.js) ---------- */
+.world { padding: var(--section-y) 0 0; }
+.world .section-head { margin-left: var(--inset); margin-right: var(--inset); }
+.world-stage {
+  position: relative;
+  height: clamp(340px, 46vw, 760px);
+  margin-top: clamp(-20px, -2vw, 0px);
+}
+.world-stage canvas { display: block; width: 100%; height: 100%; }
+/* Without WebGL the list below carries the section. */
+.world-stage.is-fallback { display: none; }
+.world-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.world-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font: 400 10px/1 "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .5);
+  opacity: 0;
+  transition: opacity .8s, color .4s;
+  will-change: transform;
+}
+.world-label.is-shown { opacity: 1; }
+.world-label b { font-weight: 400; }
+.world-label small { font-size: 9px; color: rgba(255, 255, 255, .28); transition: color .4s; }
+/* The label sits beside its point: i is a spacer the size of the city dot. */
+.world-label i { flex: none; width: 10px; }
+.world-label.is-l { translate: -100% -50%; }
+.world-label.is-l i { order: 3; }             /* "NEW YORK US" then the point */
+.world-label.is-r { translate: 0 -50%; }
+.world-label.is-t { flex-direction: column-reverse; translate: -50% -100%; gap: 4px; }
+.world-label.is-b { flex-direction: column; translate: -50% 0; gap: 4px; }
+.world-label.is-t i, .world-label.is-b i { width: auto; height: 8px; }
+.world-label.is-on { color: #fff; }
+.world-label.is-on small { color: #ff3b2a; }
+
+.world-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 26px;
+  margin: 8px var(--inset) 0;
+  padding: 0;
+  list-style: none;
+  font: 400 11px/1.4 "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .38);
+}
+.world-list li { transition: color .4s; }
+.world-list b { font-weight: 400; color: rgba(255, 255, 255, .7); transition: color .4s; }
+.world-list li.is-on, .world-list li.is-on b { color: #fff; }
+.world-list li.is-on::before { content: "● "; color: #ff3b2a; }
+@media (max-width: 809px) {
+  .world-stage { height: 64vw; min-height: 240px; }
+  .world-label { font-size: 8px; gap: 4px; }
+  .world-label small { display: none; }
+  /* Cities sit too close at this size: only the one the signal just reached is named. */
+  .world-label.is-shown { opacity: 0; }
+  .world-label.is-shown.is-on { opacity: 1; }
+  .world-list { justify-content: flex-start; gap: 8px 18px; font-size: 10px; }
+}
+
 /* ---------- Contact: readable project form ---------- */
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* One screen tall, content centred vertically: "Let's Talk" lands on the whole form. */

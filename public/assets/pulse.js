@@ -37,6 +37,7 @@
     [".svc .section-title", "01"],
     [".projects .section-title", "02"],
     [".brands .section-title", "03"],
+    [".world .section-title", "04"],
   ];
   let top = 0, height = 0, nodes = [];
 
@@ -55,7 +56,7 @@
       const t = document.querySelector(sel);
       return t ? [docTop(t) + t.offsetHeight / 2 - top, label] : null;
     }).filter(Boolean);
-    marks.push([height, "04"]);
+    marks.push([height, "05"]);
     nodes = marks.map(([y, label]) => {
       const n = document.createElement("span");
       n.className = "thread-node";
