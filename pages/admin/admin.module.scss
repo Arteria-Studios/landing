@@ -17,20 +17,63 @@
   padding: 0 clamp(20px, 4vw, 40px);
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header ----------
+   Full width, so nothing cuts the page's glow at the edge of the column:
+   a blurred veil that fades out downwards, with a hairline that fades at
+   both ends instead of stopping dead. */
 .topBar {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
   margin-bottom: 26px;
   padding: 18px 0 16px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(var(--bg) 70%, transparent);
-  backdrop-filter: blur(8px);
+  isolation: isolate;
+
+  .container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  /* The veil: opaque under the buttons, gone by the bottom edge. */
+  &::before {
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.92) 40%,
+      rgba(0, 0, 0, 0.55) 78%,
+      rgba(0, 0, 0, 0)
+    );
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  }
+
+  /* Hairline that dissolves at both ends. */
+  &::after {
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--line) 14%,
+      var(--line) 86%,
+      transparent
+    );
+  }
 }
 
 .brand {

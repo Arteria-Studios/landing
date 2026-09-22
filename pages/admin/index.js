@@ -337,8 +337,8 @@ export default function AdminPage({ authenticated }) {
 
   return (
     <main className={s.page}>
-      <div className={s.container}>
-        <header className={s.topBar}>
+      <header className={s.topBar}>
+        <div className={s.container}>
           <div className={s.brand}>
             <h1 className={s.title}>ArteriaStudios</h1>
             <span className={s.badge}>Admin</span>
@@ -362,7 +362,10 @@ export default function AdminPage({ authenticated }) {
               Sign out
             </button>
           </div>
-        </header>
+        </div>
+      </header>
+
+      <div className={s.container}>
 
         <nav className={s.tabs} aria-label="Admin sections">
           <button
