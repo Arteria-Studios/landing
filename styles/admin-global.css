@@ -1,9 +1,37 @@
-/* Base styles for the Next.js pages (the admin). The public site has its own
-   stylesheet in public/assets/styles.css. */
+/* Base styles and design tokens for the Next.js pages (the admin).
+   Same language as the site (public/assets/styles.css): black, Inter Tight,
+   DM Mono for labels, a single red accent. The public site has its own
+   stylesheet; nothing here reaches it. */
 
 :root {
-  --font-secondary: 'Inter Tight', system-ui, sans-serif;
+  --font-sans: 'Inter Tight', system-ui, -apple-system, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, Menlo, Consolas, monospace;
+  /* Kept for older rules that referenced it. */
+  --font-secondary: var(--font-sans);
+
+  --bg: #000;
+  --surface: #0a0a0a;
+  --surface-2: #0e0e0e;
+  --surface-3: #141414;
+
+  --ink: #fff;
+  --ink-2: rgba(255, 255, 255, 0.62);
+  --ink-3: rgba(255, 255, 255, 0.38);
+
+  --line: rgba(255, 255, 255, 0.12);
+  --line-2: rgba(255, 255, 255, 0.24);
+
+  --accent: #ff3b2a;
+  --accent-soft: rgba(255, 59, 42, 0.14);
+  --danger: #ff6a5a;
+  --ok: #7ee787;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
   color-scheme: dark;
 }
 
@@ -16,9 +44,10 @@
 html,
 body {
   margin: 0;
-  background: #040404;
-  color: #fff;
-  font-family: var(--font-secondary);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -31,4 +60,40 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
+}
+
+/* One focus style everywhere, like the site's. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Quiet scrollbars: the panels scroll a lot. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+  background-clip: content-box;
 }

@@ -8,7 +8,7 @@ import { uploadFileToBlob } from 'lib/admin-blob-upload'
 import { parseApiResponse } from 'lib/parse-api-response'
 import { SERVICE_CATEGORIES } from 'lib/service-categories'
 import cn from 'clsx'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import s from './admin.module.scss'
 
 // Bento tiles on the home page, in the order they appear there.
@@ -91,6 +91,13 @@ export default function AdminPage({ authenticated }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const canSubmit = useMemo(() => form.name.trim().length > 0, [form.name])
+  // Status messages show as a toast and fade out on their own.
+  const toastTimer = useRef(null)
+  useEffect(() => {
+    clearTimeout(toastTimer.current)
+    if (status) toastTimer.current = setTimeout(() => setStatus(''), 4000)
+    return () => clearTimeout(toastTimer.current)
+  }, [status])
   const isEditing = Boolean(editingId)
 
   const resetProjectForm = useCallback(() => {
@@ -300,28 +307,30 @@ export default function AdminPage({ authenticated }) {
 
   if (!isAuthenticated) {
     return (
-      <main className={s.page}>
-        <div className={s.container}>
-          <h1 className={s.title}>Admin Login</h1>
-          <form className={s.card} onSubmit={login}>
-            <div className={s.field}>
-              <label htmlFor="password">Admin password</label>
-              <input
-                id="password"
-                className={s.input}
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-            </div>
-            <div className={s.actions}>
-              <button className={s.button} type="submit">
-                Login
-              </button>
-            </div>
-            {status && <p className={s.status}>{status}</p>}
-          </form>
-        </div>
+      <main className={cn(s.page, s.login)}>
+        <form className={s.loginCard} onSubmit={login}>
+          <div className={s.loginHead}>
+            <span className={s.beat} aria-hidden="true" />
+            <h1>ArteriaStudios</h1>
+            <p>Studio admin: projects, services and contact requests.</p>
+          </div>
+          <div className={s.field}>
+            <label htmlFor="password">Admin password</label>
+            <input
+              id="password"
+              className={s.input}
+              type="password"
+              autoComplete="current-password"
+              autoFocus
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
+          <button className={cn(s.button, s.buttonAccent)} type="submit">
+            Sign in
+          </button>
+          {status && <p className={s.status}>{status}</p>}
+        </form>
       </main>
     )
   }
@@ -330,8 +339,14 @@ export default function AdminPage({ authenticated }) {
     <main className={s.page}>
       <div className={s.container}>
         <header className={s.topBar}>
-          <h1 className={s.title}>ArteriaStudios Admin</h1>
+          <div className={s.brand}>
+            <h1 className={s.title}>ArteriaStudios</h1>
+            <span className={s.badge}>Admin</span>
+          </div>
           <div className={s.actions}>
+            <a className={s.button} href="/" target="_blank" rel="noreferrer">
+              View site ↗
+            </a>
             <button
               className={s.button}
               type="button"
@@ -344,7 +359,7 @@ export default function AdminPage({ authenticated }) {
               Refresh
             </button>
             <button className={s.button} type="button" onClick={logout}>
-              Logout
+              Sign out
             </button>
           </div>
         </header>
@@ -355,30 +370,34 @@ export default function AdminPage({ authenticated }) {
             className={cn(s.tab, activeTab === 'projects' && s.tabActive)}
             onClick={() => setActiveTab('projects')}
           >
-            Projects ({projects.length})
+            Projects <span>{projects.length}</span>
           </button>
           <button
             type="button"
             className={cn(s.tab, activeTab === 'contacts' && s.tabActive)}
             onClick={() => setActiveTab('contacts')}
           >
-            Contacts ({contacts.length})
+            Contacts <span>{contacts.length}</span>
           </button>
           <button
             type="button"
             className={cn(s.tab, activeTab === 'services' && s.tabActive)}
             onClick={() => setActiveTab('services')}
           >
-            Services ({services.length})
+            Services <span>{services.length}</span>
           </button>
         </nav>
-
-        {status && !drawerOpen && <p className={s.statusBanner}>{status}</p>}
 
         {activeTab === 'projects' && (
           <section className={cn(s.card, s.cardPanel)}>
             <div className={s.sectionHead}>
-              <h2>Projects</h2>
+              <div>
+                <h2>Projects</h2>
+                <p className={s.sectionNote}>
+                  Drag to set the order on the home page and on Works. Editing
+                  opens the form with a live preview of the case page.
+                </p>
+              </div>
               <button className={cn(s.button, s.buttonAccent)} type="button" onClick={openCreateDrawer}>
                 Add project
               </button>
@@ -398,7 +417,14 @@ export default function AdminPage({ authenticated }) {
         {activeTab === 'services' && (
           <section className={cn(s.card, s.cardPanel)}>
             <div className={s.sectionHead}>
-              <h2>Services</h2>
+              <div>
+                <h2>Services</h2>
+                <p className={s.sectionNote}>
+                  These fill the Services block on the home page. A tile is one of
+                  the eight bento cards; the popover text is what visitors see when
+                  they hover the service.
+                </p>
+              </div>
             </div>
             <form className={s.serviceAdd} onSubmit={saveService}>
               <input
@@ -461,7 +487,15 @@ export default function AdminPage({ authenticated }) {
 
         {activeTab === 'contacts' && (
           <section className={cn(s.card, s.cardPanel)}>
-            <h2>Contact requests</h2>
+            <div className={s.sectionHead}>
+              <div>
+                <h2>Contact requests</h2>
+                <p className={s.sectionNote}>
+                  Everything sent through the Start a project form, newest first.
+                  Each sender also gets the confirmation email automatically.
+                </p>
+              </div>
+            </div>
             <div className={cn(s.tableWrap, s.cardScroll)}>
               <table className={s.table}>
                 <thead>
@@ -479,15 +513,18 @@ export default function AdminPage({ authenticated }) {
                 <tbody>
                   {contacts.length === 0 && (
                     <tr>
-                      <td className={s.muted} colSpan={8}>
-                        No contact requests yet.
+                      <td className={s.empty} colSpan={8}>
+                        No requests yet. They land here the moment someone sends
+                        the form on the site.
                       </td>
                     </tr>
                   )}
                   {contacts.map((item) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
-                      <td>{item.email}</td>
+                      <td>
+                        <a href={`mailto:${item.email}`}>{item.email}</a>
+                      </td>
                       <td>{item.company || '-'}</td>
                       <td>{(item.services || []).join(', ') || '-'}</td>
                       <td>{item.budget || '-'}</td>
@@ -505,6 +542,13 @@ export default function AdminPage({ authenticated }) {
           </section>
         )}
       </div>
+
+      {status && (
+        <p className={s.toast} role="status" aria-live="polite">
+          <i aria-hidden="true" />
+          {status}
+        </p>
+      )}
 
       <ProjectDrawer
         open={drawerOpen}
