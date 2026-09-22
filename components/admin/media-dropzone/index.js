@@ -9,6 +9,11 @@ import s from './media-dropzone.module.scss'
 const ACCEPT =
   'image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm'
 
+/**
+ * Media of a project: files dropped from the desktop are uploaded, and the
+ * cards themselves are dragged to set the order they appear on the case page.
+ * The arrow buttons do the same from the keyboard.
+ */
 export function MediaDropzone({
   items,
   onItemsChange,
@@ -19,7 +24,11 @@ export function MediaDropzone({
   removeMediaItem,
 }) {
   const inputRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)      // files over the grid
+  const [dragIndex, setDragIndex] = useState(null)         // card being dragged
+  // The same index in a ref: drag events can arrive before React re-renders.
+  const dragRef = useRef(null)
+  const [overIndex, setOverIndex] = useState(null)         // card it would land on
   const [uploadingIds, setUploadingIds] = useState([])
   const uploadLock = useRef(false)
 
@@ -56,21 +65,45 @@ export function MediaDropzone({
     [onItemsChange, onUploadFile, onStatus],
   )
 
+  const hasFiles = (event) =>
+    Array.from(event.dataTransfer?.types || []).includes('Files')
+
   const onDrop = (event) => {
     event.preventDefault()
     setIsDragging(false)
-    uploadFiles(event.dataTransfer.files)
+    if (hasFiles(event)) uploadFiles(event.dataTransfer.files)
+    else endDrag()
+  }
+
+  /* ---------- Reordering ---------- */
+  const endDrag = () => {
+    dragRef.current = null
+    setDragIndex(null)
+    setOverIndex(null)
+  }
+  const dropOn = (index) => {
+    const from = dragRef.current
+    if (from === null || from === index) return endDrag()
+    onItemsChange((prev) => moveItem(prev, from, index))
+    onStatus?.('Media order updated.')
+    endDrag()
+  }
+  const moveBy = (index, delta) => {
+    const to = index + delta
+    if (to < 0 || to >= items.length) return
+    onItemsChange((prev) => moveItem(prev, index, to))
   }
 
   return (
     <div className={s.root}>
       <p className={s.hint}>
-        JPEG, PNG, WebP, GIF (image), or MP4/WebM (video) · max {MAX_UPLOAD_LABEL}{' '}
-        each
+        Drag cards to set the order on the page · JPEG, PNG, WebP, GIF (image),
+        or MP4/WebM (video) · max {MAX_UPLOAD_LABEL} each
       </p>
       <div
         className={cn(s.grid, isDragging && s.dragging)}
         onDragEnter={(e) => {
+          if (!hasFiles(e)) return
           e.preventDefault()
           setIsDragging(true)
         }}
@@ -83,10 +116,39 @@ export function MediaDropzone({
       >
         {items.map((item, index) => (
           <article
-            className={s.card}
+            className={cn(
+              s.card,
+              dragIndex === index && s.cardDragging,
+              overIndex === index && dragIndex !== index && s.cardOver,
+            )}
             key={item.id || item.url || `media-${index}`}
+            draggable
+            onDragStart={(event) => {
+              dragRef.current = index
+              setDragIndex(index)
+              event.dataTransfer.effectAllowed = 'move'
+              // Some browsers need data for a drag to start at all.
+              event.dataTransfer.setData('text/plain', String(index))
+            }}
+            onDragEnd={endDrag}
+            onDragOver={(event) => {
+              if (dragRef.current === null) return
+              event.preventDefault()
+              event.dataTransfer.dropEffect = 'move'
+              if (overIndex !== index) setOverIndex(index)
+            }}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setOverIndex(null)
+            }}
+            onDrop={(event) => {
+              if (dragRef.current === null) return
+              event.preventDefault()
+              event.stopPropagation()
+              dropOn(index)
+            }}
           >
             <div className={s.preview}>
+              <span className={s.order}>{index + 1}</span>
               {item.kind === 'video' || isVideoUrl(item.url) ? (
                 <OptimizedVideo src={item.url} className={s.videoPreview} />
               ) : (
@@ -115,16 +177,18 @@ export function MediaDropzone({
                 <button
                   type="button"
                   className={s.cardBtn}
+                  aria-label="Move earlier"
                   disabled={index === 0}
-                  onClick={() => onItemsChange((prev) => moveItem(prev, index, index - 1))}
+                  onClick={() => moveBy(index, -1)}
                 >
                   ↑
                 </button>
                 <button
                   type="button"
                   className={s.cardBtn}
+                  aria-label="Move later"
                   disabled={index === items.length - 1}
-                  onClick={() => onItemsChange((prev) => moveItem(prev, index, index + 1))}
+                  onClick={() => moveBy(index, 1)}
                 >
                   ↓
                 </button>

@@ -1,6 +1,7 @@
 import { MediaDropzone } from 'components/admin/media-dropzone'
 import { ProjectSortList } from 'components/admin/project-sort-list'
 import { ProjectDrawer } from 'components/admin/project-drawer'
+import { ProjectPreview } from 'components/admin/project-preview'
 import { ServiceSortList } from 'components/admin/service-sort-list'
 import { clearSessionCookie, isAdminAuthenticated } from 'lib/admin-auth'
 import { uploadFileToBlob } from 'lib/admin-blob-upload'
@@ -509,6 +510,7 @@ export default function AdminPage({ authenticated }) {
         open={drawerOpen}
         title={isEditing ? 'Edit project' : 'New project'}
         onClose={resetProjectForm}
+        preview={drawerOpen && <ProjectPreview form={form} mediaItems={mediaItems} />}
       >
         <form className={s.drawerForm} onSubmit={submitProject}>
           <div className={s.grid}>

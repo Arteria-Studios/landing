@@ -169,3 +169,42 @@
     transform: rotate(360deg);
   }
 }
+
+/* ---------- Reordering by drag ---------- */
+.card {
+  cursor: grab;
+  transition:
+    border-color 0.2s,
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.cardDragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* The card the dragged one would land on. */
+.cardOver {
+  border-color: #00ff6a;
+  transform: translateY(-3px);
+}
+
+.order {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+  min-width: 18px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.dropCard {
+  cursor: pointer;
+}

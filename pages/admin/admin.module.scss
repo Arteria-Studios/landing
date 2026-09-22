@@ -154,13 +154,22 @@
   display: flex;
   gap: 12px;
   margin-top: 24px;
-  padding-top: 16px;
+  padding: 16px 0 12px;
   border-top: 1px solid #2a2a2a;
+  /* Save stays reachable while the form scrolls. */
+  position: sticky;
+  bottom: -48px;
+  background: linear-gradient(transparent, #040404 20%);
 }
 
 .drawerForm {
   display: flex;
   flex-direction: column;
+
+  /* The editor column is narrow (30% of the screen): one field per row. */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .status {
