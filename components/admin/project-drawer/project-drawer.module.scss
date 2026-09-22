@@ -23,6 +23,8 @@
 
 .panel {
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bg);
   display: flex;
   flex-direction: column;
@@ -37,6 +39,8 @@
 
 .preview {
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
 
   > * {
@@ -83,6 +87,8 @@
 .body {
   flex: 1;
   overflow-y: auto;
+  /* Scrolling the form never scrolls the page behind it. */
+  overscroll-behavior: contain;
   padding: 20px;
   padding-bottom: 48px;
 }
@@ -91,8 +97,7 @@
 @media (max-width: 1000px) {
   .layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-    overflow-y: auto;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .preview {

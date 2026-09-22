@@ -1,8 +1,14 @@
 import cn from 'clsx'
 import { parseApiResponse } from 'lib/parse-api-response'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import s from './project-sort-list.module.scss'
 
+/**
+ * Projects in the admin. Two views:
+ * - A–Z, for finding a project quickly (the default);
+ * - Site order, where rows are dragged to set what the home page and Works show.
+ * A row opens the editor; the number badge is always the position on the site.
+ */
 export function ProjectSortList({
   projects,
   onProjectsChange,
@@ -11,6 +17,7 @@ export function ProjectSortList({
   onStatus,
 }) {
   const [items, setItems] = useState(projects)
+  const [sort, setSort] = useState('az')
   const [dragIndex, setDragIndex] = useState(null)
   const [overIndex, setOverIndex] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -18,6 +25,15 @@ export function ProjectSortList({
   useEffect(() => {
     setItems(projects)
   }, [projects])
+
+  // What the list shows; site positions stay visible in both views.
+  const rows = useMemo(() => {
+    const withPosition = items.map((project, index) => ({ project, position: index + 1 }))
+    if (sort === 'site') return withPosition
+    return [...withPosition].sort((a, b) =>
+      a.project.name.localeCompare(b.project.name, undefined, { sensitivity: 'base' }),
+    )
+  }, [items, sort])
 
   const moveItem = useCallback((list, from, to) => {
     if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) {
@@ -70,92 +86,122 @@ export function ProjectSortList({
   }
 
   if (items.length === 0) {
-    return (
-      <p className={s.empty}>No projects yet. Click Add project.</p>
-    )
+    return <p className={s.empty}>No projects yet. Click Add project.</p>
   }
+
+  const canDrag = sort === 'site'
 
   return (
     <div className={s.root}>
-      <p className={s.hint}>
-        Drag the handle to set homepage order (top = first on the main page).
-        {saving && <span className={s.saving}> Saving…</span>}
-      </p>
-      <ul className={s.list} role="list">
-        {items.map((project, index) => (
-          <li
-            key={project.id}
-            className={cn(
-              s.row,
-              dragIndex === index && s.rowDragging,
-              overIndex === index && dragIndex !== index && s.rowOver,
-            )}
-            onDragOver={(event) => {
-              event.preventDefault()
-              event.dataTransfer.dropEffect = 'move'
-              if (dragIndex !== null && overIndex !== index) {
-                setOverIndex(index)
-              }
-            }}
-            onDragLeave={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) {
-                setOverIndex(null)
-              }
-            }}
-            onDrop={(event) => {
-              event.preventDefault()
-              finishDrag(index)
-            }}
+      <div className={s.bar}>
+        <p className={s.hint}>
+          {canDrag
+            ? 'Drag the handle to set the order on the site (top = first on the home page).'
+            : 'Sorted A–Z. Switch to Site order to change what the home page shows.'}
+          {saving && <span className={s.saving}> Saving…</span>}
+        </p>
+        <div className={s.views}>
+          <button
+            type="button"
+            className={cn(s.view, sort === 'az' && s.viewOn)}
+            onClick={() => setSort('az')}
           >
-            <button
-              type="button"
-              className={s.handle}
-              aria-label={`Reorder ${project.name}`}
-              draggable={!saving}
-              disabled={saving}
-              onDragStart={(event) => {
-                setDragIndex(index)
-                event.dataTransfer.effectAllowed = 'move'
-                event.dataTransfer.setData('text/plain', String(index))
+            A–Z
+          </button>
+          <button
+            type="button"
+            className={cn(s.view, canDrag && s.viewOn)}
+            onClick={() => setSort('site')}
+          >
+            Site order
+          </button>
+        </div>
+      </div>
+      <ul className={s.list} role="list">
+        {rows.map(({ project, position }) => {
+          const index = position - 1
+          return (
+            <li
+              key={project.id}
+              className={cn(
+                s.row,
+                dragIndex === index && s.rowDragging,
+                overIndex === index && dragIndex !== index && s.rowOver,
+              )}
+              onDragOver={(event) => {
+                if (!canDrag) return
+                event.preventDefault()
+                event.dataTransfer.dropEffect = 'move'
+                if (dragIndex !== null && overIndex !== index) {
+                  setOverIndex(index)
+                }
               }}
-              onDragEnd={() => {
-                setDragIndex(null)
-                setOverIndex(null)
+              onDragLeave={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) {
+                  setOverIndex(null)
+                }
+              }}
+              onDrop={(event) => {
+                if (!canDrag) return
+                event.preventDefault()
+                finishDrag(index)
               }}
             >
-              <span className={s.burger} aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </span>
-            </button>
-            <div className={s.meta}>
-              <span className={s.order}>{index + 1}</span>
-              <div className={s.info}>
-                <span className={s.name}>{project.name}</span>
-                <span className={s.sub}>
-                  {project.industry || '—'} · {project.media?.length || 0} media
-                </span>
-              </div>
-            </div>
-            <div className={s.actions}>
+              {canDrag && (
+                <button
+                  type="button"
+                  className={s.handle}
+                  aria-label={`Reorder ${project.name}`}
+                  draggable={!saving}
+                  disabled={saving}
+                  onDragStart={(event) => {
+                    setDragIndex(index)
+                    event.dataTransfer.effectAllowed = 'move'
+                    event.dataTransfer.setData('text/plain', String(index))
+                  }}
+                  onDragEnd={() => {
+                    setDragIndex(null)
+                    setOverIndex(null)
+                  }}
+                >
+                  <span className={s.burger} aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                </button>
+              )}
+              {/* The row itself opens the editor. */}
               <button
                 type="button"
-                className={s.btn}
+                className={s.open}
                 onClick={() => onEdit(project)}
+                title={`Edit ${project.name}`}
               >
-                Edit
+                <span className={s.order}>{String(position).padStart(2, '0')}</span>
+                <span className={s.info}>
+                  <span className={s.name}>{project.name}</span>
+                  <span className={s.sub}>
+                    {project.industry || 'No industry'} ·{' '}
+                    {project.media?.length || 0} media
+                  </span>
+                </span>
+                <span className={s.edit} aria-hidden="true">
+                  Edit
+                </span>
               </button>
-              <button
-                type="button"
-                className={cn(s.btn, s.btnDanger)}
-                onClick={() => onDelete(project.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
+              <div className={s.actions}>
+                <button
+                  type="button"
+                  className={cn(s.btn, s.btnDanger)}
+                  onClick={() => onDelete(project.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
