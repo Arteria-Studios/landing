@@ -93,15 +93,42 @@
   padding-bottom: 48px;
 }
 
-/* Narrow screens: the form takes the screen, the preview sits under it. */
+/* Narrow screens: form first, preview under it, and the whole editor scrolls
+   as one page (two nested scroll areas would fight for the wheel here). */
 @media (max-width: 1000px) {
+  /* Plain block flow: a grid with a definite height squeezes the form. */
   .layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .panel {
+    display: block;
+    overflow: visible;
+    border-right: 0;
+  }
+
+  .body {
+    overflow: visible;
+    padding-bottom: 28px;
+  }
+
+  /* Close stays reachable while the form scrolls. */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg);
   }
 
   .preview {
-    height: 70vh;
+    display: block;
+    height: 65vh;
     border-top: 1px solid var(--line);
+  }
+
+  .preview > * {
+    height: 100%;
   }
 }
