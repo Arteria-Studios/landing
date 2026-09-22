@@ -30,7 +30,8 @@
   // side: where the label sits, so neighbours (Dubai/Doha, Almaty/Tashkent) don't collide.
   const CITIES = [
     { name: "New York", cc: "US", lat: 40.71, lon: -74.01, side: "l" },
-    { name: "Berlin", cc: "DE", lat: 52.52, lon: 13.40, side: "l" },
+    { name: "London", cc: "GB", lat: 51.51, lon: -0.13, side: "l" },
+    { name: "Berlin", cc: "DE", lat: 52.52, lon: 13.40, side: "b" },
     { name: "Tallinn", cc: "EE", lat: 59.44, lon: 24.75, side: "t" },
     { name: "Moscow", cc: "RU", lat: 55.76, lon: 37.62, side: "r" },
     { name: "Almaty", cc: "KZ", lat: 43.24, lon: 76.89, side: "r" },
